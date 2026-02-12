@@ -61,17 +61,6 @@
  * size.
  *
  * Memory can be efficiently merged when gst_memory_is_span() returns %TRUE.
- *
- * {{ PY.md }}
- *
- * The Memory objects automatically inherit from #GstMiniObject.
- *
- * Following GStreamer's copy-on-write semantics: if you need
- * to modify a memory that might be shared, call
- * [Gst.MiniObject.make_writable](gstminiobject.html#gst-miniobject-make-writable)
- * first to ensure you have a writable copy.
- *
- * {{ END_LANG.md }}
  */
 
 #ifdef HAVE_CONFIG_H
@@ -300,23 +289,6 @@ cannot_map:
  * For each gst_memory_map() call, a corresponding gst_memory_unmap() call
  * should be done.
  *
- * {{ PY.md }}
- *
- * ##### Example:
- *
- * **Context manager support**: Returns a `Gst.MapInfo` object that can be used
- * as a context manager for automatic unmapping.
- *
- * ``` python
- * # Context manager automatically handles unmapping
- * with memory.map(Gst.MapFlags.READWRITE) as mapinfo:
- *     # Access and modify the memory data
- *     mapinfo.data[0:4] = b'\x00\x01\x02\x03'
- *     # mapinfo is automatically unmapped when exiting the with block
- * ```
- *
- * {{ END_LANG.md }}
- *
  * Returns: %TRUE if the map operation was successful.
  */
 gboolean
@@ -342,6 +314,9 @@ gst_memory_map (GstMemory * mem, GstMapInfo * info, GstMapFlags flags)
     goto error;
 
   info->data = info->data + mem->offset;
+
+  if ((flags & GST_MAP_REF_MEMORY) != 0)
+    gst_memory_ref (info->memory);
 
   return TRUE;
 
@@ -377,11 +352,65 @@ gst_memory_unmap (GstMemory * mem, GstMapInfo * info)
   g_return_if_fail (info != NULL);
   g_return_if_fail (info->memory == mem);
 
+  gst_map_info_clear (info);
+}
+
+/**
+ * gst_map_info_init:
+ * @info: a #GstMapInfo
+ *
+ * Initializes @info.
+ *
+ * Since: 1.28
+ */
+void
+gst_map_info_init (GstMapInfo * info)
+{
+  g_return_if_fail (info != NULL);
+
+  memset (info, 0, sizeof (*info));
+}
+
+/**
+ * gst_map_info_clear:
+ * @info: a #GstMapInfo
+ *
+ * Release the memory obtained with gst_memory_map()
+ *
+ * Since: 1.28
+ */
+void
+gst_map_info_clear (GstMapInfo * info)
+{
+  GstMemory *mem;
+
+  g_return_if_fail (info != NULL);
+
+  mem = info->memory;
+
+  /* Allow to unmap even if not mapped, to work nicely with
+   * g_auto (GstMapInfo) map = GST_MAP_INFO_INIT;
+   */
+  if (!mem)
+    return;
+
   if (mem->allocator->mem_unmap_full)
     mem->allocator->mem_unmap_full (mem, info);
   else
     mem->allocator->mem_unmap (mem);
   gst_memory_unlock (mem, (GstLockFlags) info->flags);
+
+  if ((info->flags & GST_MAP_REF_MEMORY) != 0)
+    gst_memory_unref (info->memory);
+
+  /* Reset various fields to avoid use-after-frees.
+   * This also makes it possible to call clear() twice.
+   * Keep size/maxsize set because various code is
+   * making use of it and it's less critical. */
+  info->memory = NULL;
+  info->flags = 0;
+  info->data = NULL;
+  memset (&info->user_data, 0, sizeof (info->user_data));
 }
 
 /**

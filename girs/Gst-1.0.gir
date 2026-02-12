@@ -8,7 +8,7 @@ and/or use gtk-doc annotations.  -->
   <package name="gstreamer-1.0"/>
   <c:include name="gst/gst.h"/>
   <namespace name="Gst" version="1.0" shared-library="libgstreamer-1.0.so.0" c:identifier-prefixes="Gst" c:symbol-prefixes="gst">
-    <alias name="BufferMapInfo" c:type="GstBufferMapInfo" introspectable="0">
+    <alias name="BufferMapInfo" c:type="GstBufferMapInfo" introspectable="0" deprecated="1" deprecated-version="1.28">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbuffer.h">Alias for #GstMapInfo to be used with g_auto():
 ```c
 void my_func(GstBuffer *buf)
@@ -21,10 +21,8 @@ void my_func(GstBuffer *buf)
 }
 ```
 
-#GstMapInfo cannot be used with g_auto() because it is ambiguous whether it
-needs to be unmapped using gst_buffer_unmap() or gst_memory_unmap().
-
 See also #GstMemoryMapInfo.</doc>
+      <doc-deprecated xml:space="preserve">Use #GstMapInfo instead.</doc-deprecated>
       <source-position filename="../subprojects/gstreamer/gst/gstbuffer.h"/>
       <type name="MapInfo" c:type="GstMapInfo"/>
     </alias>
@@ -48,7 +46,7 @@ See also #GstMemoryMapInfo.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstelementfactory.h"/>
       <type name="guint64" c:type="guint64"/>
     </alias>
-    <alias name="MemoryMapInfo" c:type="GstMemoryMapInfo" introspectable="0">
+    <alias name="MemoryMapInfo" c:type="GstMemoryMapInfo" introspectable="0" deprecated="1" deprecated-version="1.28">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmemory.h">Alias for #GstMapInfo to be used with g_auto():
 ```c
 void my_func(GstMemory *mem)
@@ -61,10 +59,8 @@ void my_func(GstMemory *mem)
 }
 ```
 
-#GstMapInfo cannot be used with g_auto() because it is ambiguous whether it
-needs to be unmapped using gst_buffer_unmap() or gst_memory_unmap().
-
 See also #GstBufferMapInfo.</doc>
+      <doc-deprecated xml:space="preserve">Use #GstMapInfo instead.</doc-deprecated>
       <source-position filename="../subprojects/gstreamer/gst/gstmemory.h"/>
       <type name="MapInfo" c:type="GstMapInfo"/>
     </alias>
@@ -1200,9 +1196,7 @@ handler will return %TRUE.</doc>
         </parameters>
       </virtual-method>
       <method name="add" c:identifier="gst_bin_add">
-        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbin.c">{{ C+JS_FALLBACK.md }}
-
-Adds the given element to the bin.  Sets the element's parent, and thus
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbin.c">Adds the given element to the bin.  Sets the element's parent, and thus
 takes ownership of the element. An element can only be added to one bin.
 
 If the element's pads are linked to other pads, the pads will be unlinked
@@ -1212,28 +1206,7 @@ before the element is added to the bin.
 &gt; take care to set the state of the newly-added element to the desired
 &gt; state (usually PLAYING or PAUSED, same you set the pipeline to originally)
 &gt; with gst_element_set_state(), or use gst_element_sync_state_with_parent().
-&gt; The bin or pipeline will not take care of this for you.
-
-{{ END_LANG.md }}
-
-{{ PY.md }}
-
-**Accepts multiple elements**: You can pass any number of elements as arguments to add them all at once.
-
-**Raises**: `Gst.AddError` if any of the elements could not be added.
-
-##### Example:
-
-``` python
-bin = Gst.Bin()
-# Add multiple elements at once
-bin.add(source, filter, sink)
-
-# Also works with single elements
-bin.add(another_element)
-```
-
-{{ END_LANG.md }}</doc>
+&gt; The bin or pipeline will not take care of this for you.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gstbin.h"/>
         <return-value transfer-ownership="none">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbin.c">%TRUE if the element could be added, %FALSE if
@@ -2935,19 +2908,8 @@ the new memory.</doc>
       <method name="is_all_memory_writable" c:identifier="gst_buffer_is_all_memory_writable" version="1.4">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbuffer.c">Checks if all memory blocks in @buffer are writable.
 
-{{ C+JS_FALLBACK.md }}
-
 Note that this function does not check if @buffer is writable, use
-gst_buffer_is_writable() to check that if needed.
-
-{{ END_LANG.md }}
-
-{{ PY.md }}
-
-Note that this function does not check if @buffer is writable, use
-[Gst.MiniObject.is_writable](gstminiobject.html#gst-miniobject-is-writable) to check that if needed.
-
-{{ END_LANG.md }}</doc>
+gst_buffer_is_writable() to check that if needed.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gstbuffer.h"/>
         <return-value transfer-ownership="none">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbuffer.c">%TRUE if all memory blocks in @buffer are writable</doc>
@@ -2965,19 +2927,8 @@ Note that this function does not check if @buffer is writable, use
 
 @length can be -1 to check all the memory blocks after @idx.
 
-{{ C+JS_FALLBACK.md }}
-
 Note that this function does not check if @buffer is writable, use
-gst_buffer_is_writable() to check that if needed.
-
-{{ END_LANG.md }}
-
-{{ PY.md }}
-
-Note that this function does not check if @buffer is writable, use
-[Gst.MiniObject.is_writable](gstminiobject.html#gst-miniobject-is-writable) to check that if needed.
-
-{{ END_LANG.md }}</doc>
+gst_buffer_is_writable() to check that if needed.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gstbuffer.h"/>
         <return-value transfer-ownership="none">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbuffer.c">%TRUE if the memory range is writable</doc>
@@ -3097,44 +3048,16 @@ you have an additional reference to it.</doc>
       <method name="map" c:identifier="gst_buffer_map">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbuffer.c">Fills @info with the #GstMapInfo of all merged memory blocks in @buffer.
 
-{{ C+JS_FALLBACK.md }}
-
 @flags describe the desired access of the memory. When @flags is
 #GST_MAP_WRITE, @buffer should be writable (as returned from
 gst_buffer_is_writable()).
-
-{{ END_LANG.md }}
-
-{{ PY.md }}
-
-@flags describe the desired access of the memory. When @flags is
-#GST_MAP_WRITE, @buffer should be writable (as returned from
-[Gst.MiniObject.is_writable](gstminiobject.html#gst-miniobject-is-writable)).
-
-{{ END_LANG.md }}
 
 When @buffer is writable but the memory isn't, a writable copy will
 automatically be created and returned. The readonly copy of the
 buffer memory will then also be replaced with this writable copy.
 
 The memory in @info should be unmapped with gst_buffer_unmap() after
-usage.
-
-{{ PY.md }}
-
-**Context manager support**: Returns a `Gst.MapInfo` object that can be used
-as a context manager for automatic unmapping.
-
-##### Example:
-
-``` python
-# Context manager automatically handles unmapping
-with buffer.map(Gst.MapFlags.READ) as mapinfo:
-    data = mapinfo.data
-    # mapinfo is automatically unmapped when exiting the with block
-```
-
-{{ END_LANG.md }}</doc>
+usage.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gstbuffer.h"/>
         <return-value transfer-ownership="none">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbuffer.c">%TRUE if the map succeeded and @info contains valid data.</doc>
@@ -3160,43 +3083,15 @@ with buffer.map(Gst.MapFlags.READ) as mapinfo:
 starting at @idx in @buffer. When @length is -1, all memory blocks starting
 from @idx are merged and mapped.
 
-{{ C+JS_FALLBACK.md }}
-
 @flags describe the desired access of the memory. When @flags is
 #GST_MAP_WRITE, @buffer should be writable (as returned from
 gst_buffer_is_writable()).
-
-{{ END_LANG.md }}
-
-{{ PY.md }}
-
-@flags describe the desired access of the memory. When @flags is
-#GST_MAP_WRITE, @buffer should be writable (as returned from
-[Gst.MiniObject.is_writable](gstminiobject.html#gst-miniobject-is-writable)).
-
-{{ END_LANG.md }}
 
 When @buffer is writable but the memory isn't, a writable copy will
 automatically be created and returned. The readonly copy of the buffer memory
 will then also be replaced with this writable copy.
 
-The memory in @info should be unmapped with gst_buffer_unmap() after usage.
-
-{{ PY.md }}
-
-
-**Context manager support**: Returns a `Gst.MapInfo` object that can be used
-as a context manager for automatic unmapping.
-
-##### Example:
-
-``` python
-with buffer.map(Gst.MapFlags.READ) as mapinfo:
-    data = mapinfo.data
-    # mapinfo is automatically unmapped when exiting the with block
-```
-
-{{ END_LANG.md }}</doc>
+The memory in @info should be unmapped with gst_buffer_unmap() after usage.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gstbuffer.h"/>
         <return-value transfer-ownership="none">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbuffer.c">%TRUE if the map succeeded and @info contains valid
@@ -3340,19 +3235,8 @@ See gst_buffer_insert_memory() for more details.</doc>
       <method name="ref" c:identifier="gst_buffer_ref" introspectable="0">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbuffer.c">Increases the refcount of the given buffer by one.
 
-{{ C+JS_FALLBACK.md }}
-
 Note that the refcount affects the writability
 of @buf and its metadata, see gst_buffer_is_writable().
-
-{{ END_LANG.md }}
-
-{{ PY.md }}
-
-Note that the refcount affects the writability
-of @buf and its metadata, see [Gst.MiniObject.is_writable](gstminiobject.html#gst-miniobject-is-writable).
-
-{{ END_LANG.md }}
 It is important to note that keeping additional references to
 GstBuffer instances can potentially increase the number
 of `memcpy` operations in a pipeline.</doc>
@@ -3841,7 +3725,7 @@ When @meta is set to %NULL, the item will be removed from the buffer.</doc>
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbuffer.h">a #GstBuffer</doc>
           <type name="Buffer" c:type="GstBuffer*"/>
         </parameter>
-        <parameter name="meta" direction="out" caller-allocates="0" transfer-ownership="full" nullable="1">
+        <parameter name="meta" direction="inout" caller-allocates="0" transfer-ownership="full" nullable="1" allow-none="1">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbuffer.h">a pointer to a #GstMeta</doc>
           <type name="Meta" c:type="GstMeta**"/>
         </parameter>
@@ -3859,18 +3743,7 @@ using gst_buffer_list_insert().
 
 Buffer lists can be pushed on a srcpad with gst_pad_push_list(). This is
 interesting when multiple buffers need to be pushed in one go because it
-can reduce the amount of overhead for pushing each buffer individually.
-
-{{ PY.md }}
-
-The BufferList objects automatically inherit from #GstMiniObject.
-
-Following GStreamer's copy-on-write semantics: if you need
-to modify a bufferlist that might be shared, call
-[Gst.MiniObject.make_writable](gstminiobject.html#gst-miniobject-make-writable)
-first to ensure you have a writable copy.
-
-{{ END_LANG.md }}</doc>
+can reduce the amount of overhead for pushing each buffer individually.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstbufferlist.h"/>
       <constructor name="new" c:identifier="gst_buffer_list_new">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbufferlist.c">Creates a new, empty #GstBufferList.</doc>
@@ -4226,7 +4099,7 @@ removing or modifying.</doc>
         <type name="gboolean" c:type="gboolean"/>
       </return-value>
       <parameters>
-        <parameter name="buffer" direction="out" caller-allocates="0" transfer-ownership="full" nullable="1">
+        <parameter name="buffer" direction="inout" caller-allocates="0" transfer-ownership="full" nullable="1" allow-none="1">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstbufferlist.h">pointer to the buffer</doc>
           <type name="Buffer" c:type="GstBuffer**"/>
         </parameter>
@@ -6237,7 +6110,7 @@ evaluates to @def_return.</doc>
       </parameters>
     </function-macro>
     <function-macro name="CAT_DEBUG" c:identifier="GST_CAT_DEBUG" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an debugging message in the given category.
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a debugging message in the given category.
 
 There is no need to finish the end of the message string with a newline
 character, a newline character will be added automatically.</doc>
@@ -6252,7 +6125,41 @@ character, a newline character will be added automatically.</doc>
       </parameters>
     </function-macro>
     <function-macro name="CAT_DEBUG_OBJECT" c:identifier="GST_CAT_DEBUG_OBJECT" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an debugging message belonging to the given object in the given category.
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a debugging message belonging to the given object in the given category.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="obj">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">the #GObject the message belongs to</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_DEBUG_ONCE" c:identifier="GST_CAT_DEBUG_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a debugging message in the given category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_DEBUG_ONCE_OBJECT" c:identifier="GST_CAT_DEBUG_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a debugging message belonging to the given object in the given
+category exactly once per statement.
 
 There is no need to finish the end of the message string with a newline
 character, a newline character will be added automatically.</doc>
@@ -6302,6 +6209,40 @@ character, a newline character will be added automatically.</doc>
         </parameter>
       </parameters>
     </function-macro>
+    <function-macro name="CAT_ERROR_ONCE" c:identifier="GST_CAT_ERROR_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an error message in the given category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_ERROR_ONCE_OBJECT" c:identifier="GST_CAT_ERROR_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an error message belonging to the given object in the given category
+exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="obj">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">the #GObject the message belongs to</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
     <function-macro name="CAT_FIXME" c:identifier="GST_CAT_FIXME" introspectable="0">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an fixme message in the given category.
 
@@ -6319,6 +6260,40 @@ character, a newline character will be added automatically.</doc>
     </function-macro>
     <function-macro name="CAT_FIXME_OBJECT" c:identifier="GST_CAT_FIXME_OBJECT" introspectable="0">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a fixme message belonging to the given object in the given category.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="obj">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">the #GObject the message belongs to</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_FIXME_ONCE" c:identifier="GST_CAT_FIXME_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a fixme message in the given category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_FIXME_ONCE_OBJECT" c:identifier="GST_CAT_FIXME_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a fixme message belonging to the given object in the given category
+exactly once per statement.
 
 There is no need to finish the end of the message string with a newline
 character, a newline character will be added automatically.</doc>
@@ -6369,10 +6344,44 @@ character, a newline character will be added automatically.</doc>
         </parameter>
       </parameters>
     </function-macro>
+    <function-macro name="CAT_INFO_ONCE" c:identifier="GST_CAT_INFO_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an informational message in the given category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_INFO_ONCE_OBJECT" c:identifier="GST_CAT_INFO_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an informational message belonging to the given object in the given
+category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="obj">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">the #GObject the message belongs to</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
     <function-macro name="CAT_LEVEL_LOG" c:identifier="GST_CAT_LEVEL_LOG" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Outputs a debugging message. This is the most general macro for outputting
-debugging messages. You will probably want to use one of the ones described
-below.
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Outputs a debugging message with a specific category and level. This is the
+most general macro for this purpose. You will probably want to use one of
+the simpler ones described below.
 
 There is no need to finish the end of the debug message with a newline
 character, a newline character will be added automatically.</doc>
@@ -6393,9 +6402,60 @@ character, a newline character will be added automatically.</doc>
       </parameters>
     </function-macro>
     <function-macro name="CAT_LEVEL_LOG_ID" c:identifier="GST_CAT_LEVEL_LOG_ID" version="1.22" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Outputs a debugging message. This is the most general macro for outputting
-debugging messages. You will probably want to use one of the ones described
-below.
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Outputs a debugging message with an identifier. This is the most general
+macro for this purpose. You will probably want to use one of the simpler
+ones described below.
+
+There is no need to finish the end of the debug message with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="level">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">the severity of the message</doc>
+        </parameter>
+        <parameter name="id">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">the identifier of the object this message
+    relates to, or %NULL if none</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">A printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_LEVEL_LOG_ONCE" c:identifier="GST_CAT_LEVEL_LOG_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Outputs a debugging message with a specific category and level exactly once
+per statement.
+
+This is the most general macro for this purpose. You will probably
+want to use one of the simpler ones described below.
+
+There is no need to finish the end of the debug message with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="level">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">the severity of the message</doc>
+        </parameter>
+        <parameter name="object">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">the #GObject the message belongs to or %NULL if none</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">A printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_LEVEL_LOG_ONCE_ID" c:identifier="GST_CAT_LEVEL_LOG_ONCE_ID" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Outputs a debugging message with a specific category, level, and identifier
+exactly once per statement.
+
+This is the most general macro for this purpose. You will probably want to
+use one of the simpler ones described below.
 
 There is no need to finish the end of the debug message with a newline
 character, a newline character will be added automatically.</doc>
@@ -6417,7 +6477,7 @@ character, a newline character will be added automatically.</doc>
       </parameters>
     </function-macro>
     <function-macro name="CAT_LOG" c:identifier="GST_CAT_LOG" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an logging message in the given category.
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a logging message in the given category.
 
 There is no need to finish the end of the message string with a newline
 character, a newline character will be added automatically.</doc>
@@ -6432,7 +6492,42 @@ character, a newline character will be added automatically.</doc>
       </parameters>
     </function-macro>
     <function-macro name="CAT_LOG_OBJECT" c:identifier="GST_CAT_LOG_OBJECT" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an logging message belonging to the given object in the given category.
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a logging message belonging to the given object in the given
+category.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="obj">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">the #GObject the message belongs to</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_LOG_ONCE" c:identifier="GST_CAT_LOG_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a logging message in the given category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_LOG_ONCE_OBJECT" c:identifier="GST_CAT_LOG_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a logging message belonging to the given object in the given
+category exactly once per statement.
 
 There is no need to finish the end of the message string with a newline
 character, a newline character will be added automatically.</doc>
@@ -6553,6 +6648,40 @@ character, a newline character will be added automatically.</doc>
         </parameter>
       </parameters>
     </function-macro>
+    <function-macro name="CAT_TRACE_ONCE" c:identifier="GST_CAT_TRACE_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a tracing message in the given category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_TRACE_ONCE_OBJECT" c:identifier="GST_CAT_TRACE_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a tracing message belonging to the given object in the given
+category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="obj">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">the #GObject the message belongs to</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
     <function-macro name="CAT_WARNING" c:identifier="GST_CAT_WARNING" introspectable="0">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an warning message in the given category.
 
@@ -6570,6 +6699,40 @@ character, a newline character will be added automatically.</doc>
     </function-macro>
     <function-macro name="CAT_WARNING_OBJECT" c:identifier="GST_CAT_WARNING_OBJECT" introspectable="0">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a warning message belonging to the given object in the given category.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="obj">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">the #GObject the message belongs to</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_WARNING_ONCE" c:identifier="GST_CAT_WARNING_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a warning message in the given category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="cat">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">category to use</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="CAT_WARNING_ONCE_OBJECT" c:identifier="GST_CAT_WARNING_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a warning message belonging to the given object in the given
+category exactly once per statement.
 
 There is no need to finish the end of the message string with a newline
 character, a newline character will be added automatically.</doc>
@@ -6813,9 +6976,12 @@ The difference is calculated as @e - @s.</doc>
       </parameters>
     </function-macro>
     <function-macro name="CTX_DEBUG" c:identifier="GST_CTX_DEBUG" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a debug message in the specified context.
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a debug message in the specified context.
 If this exact message was already logged from the same location with this
 context, it will not be logged again unless the context has been reset.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.
 
 Example:
 ``` c
@@ -6839,7 +7005,10 @@ for (i = 0; i &lt; 1000; i++) {
       </parameters>
     </function-macro>
     <function-macro name="CTX_DEBUG_ID" c:identifier="GST_CTX_DEBUG_ID" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a debug message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a debug message for the given identifier in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -6849,12 +7018,16 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_DEBUG_OBJECT" c:identifier="GST_CTX_DEBUG_OBJECT" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs an info message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a debugging message belonging to the given object in the specified
+context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -6864,24 +7037,30 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_ERROR" c:identifier="GST_CTX_ERROR" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs an error message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an error message in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">#GstLogContext to use</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_ERROR_ID" c:identifier="GST_CTX_ERROR_ID" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs an error message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an error message for the given identifier in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -6891,12 +7070,16 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_ERROR_OBJECT" c:identifier="GST_CTX_ERROR_OBJECT" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs an error message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an error message belonging to the given object in the specified
+context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -6906,24 +7089,30 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_FIXME" c:identifier="GST_CTX_FIXME" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a fixme message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a fixme message in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">#GstLogContext to use</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_FIXME_ID" c:identifier="GST_CTX_FIXME_ID" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a fixme message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a fixme message for the given identifier in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -6933,12 +7122,16 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_FIXME_OBJECT" c:identifier="GST_CTX_FIXME_OBJECT" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a fixme message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a fixme message belonging to the given object in the specified
+context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -6948,24 +7141,30 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_INFO" c:identifier="GST_CTX_INFO" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs an info message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an info message in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">#GstLogContext to use</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_INFO_ID" c:identifier="GST_CTX_INFO_ID" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs an info message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an info message for the given identifier in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -6975,12 +7174,16 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_INFO_OBJECT" c:identifier="GST_CTX_INFO_OBJECT" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs an info message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an informational message belonging to the given object in the
+specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -6990,12 +7193,17 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_LEVEL_LOG" c:identifier="GST_CTX_LEVEL_LOG" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a memory dump message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Outputs a debugging message in the specified context with the specified
+level. This is the most general macro for this purpose. You will probably
+want to use one of the simpler ones described below.
+
+There is no need to finish the end of the debug message with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -7008,12 +7216,14 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_LEVEL_LOG_ID" c:identifier="GST_CTX_LEVEL_LOG_ID" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a memory dump message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Outputs a debugging message with an identifier in the specified context
+with the specified level. This is the most general macro for this purpose.
+You will probably want to use one of the simpler ones described below.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -7026,24 +7236,30 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_LOG" c:identifier="GST_CTX_LOG" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a log message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a log message in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">#GstLogContext to use</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_LOG_ID" c:identifier="GST_CTX_LOG_ID" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a log message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a log message for the given identifier in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -7053,12 +7269,16 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_LOG_OBJECT" c:identifier="GST_CTX_LOG_OBJECT" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a log message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a logging message belonging to the given object in the specified
+context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -7068,66 +7288,30 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
-        </parameter>
-      </parameters>
-    </function-macro>
-    <function-macro name="CTX_MEMDUMP" c:identifier="GST_CTX_MEMDUMP" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a memory dump message in the specified context.</doc>
-      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
-      <parameters>
-        <parameter name="ctx">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">#GstLogContext to use</doc>
-        </parameter>
-        <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
-        </parameter>
-      </parameters>
-    </function-macro>
-    <function-macro name="CTX_MEMDUMP_ID" c:identifier="GST_CTX_MEMDUMP_ID" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a memory dump message in the specified context.</doc>
-      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
-      <parameters>
-        <parameter name="ctx">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">#GstLogContext to use</doc>
-        </parameter>
-        <parameter name="id">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
-        </parameter>
-        <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
-        </parameter>
-      </parameters>
-    </function-macro>
-    <function-macro name="CTX_MEMDUMP_OBJECT" c:identifier="GST_CTX_MEMDUMP_OBJECT" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a memory dump message in the specified context.</doc>
-      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
-      <parameters>
-        <parameter name="ctx">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">#GstLogContext to use</doc>
-        </parameter>
-        <parameter name="object">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
-        </parameter>
-        <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_TRACE" c:identifier="GST_CTX_TRACE" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a trace message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a trace message in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">#GstLogContext to use</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_TRACE_ID" c:identifier="GST_CTX_TRACE_ID" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a trace message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a trace message for the given identifier in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -7137,12 +7321,16 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_TRACE_OBJECT" c:identifier="GST_CTX_TRACE_OBJECT" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a trace message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a tracing message belonging to the given object in the specified
+context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -7152,24 +7340,30 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_WARNING" c:identifier="GST_CTX_WARNING" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a warning message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a warning message in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">#GstLogContext to use</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_WARNING_ID" c:identifier="GST_CTX_WARNING_ID" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a warning message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a warning message for the given identifier in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -7179,12 +7373,15 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
     <function-macro name="CTX_WARNING_OBJECT" c:identifier="GST_CTX_WARNING_OBJECT" version="1.28" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a warning message in the specified context.</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a warning message belonging to the given object in the specified context.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <parameters>
         <parameter name="ctx">
@@ -7194,7 +7391,7 @@ for (i = 0; i &lt; 1000; i++) {
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
         </parameter>
         <parameter name="...">
-          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments, followed by optional context</doc>
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
@@ -7225,8 +7422,6 @@ handle or produce at runtime.
 
 A #GstCaps can be constructed with the following code fragment:
 
-{{ C+JS_FALLBACK.md }}
-
 ``` C
   GstCaps *caps = gst_caps_new_simple ("video/x-raw",
      "format", G_TYPE_STRING, "I420",
@@ -7236,17 +7431,6 @@ A #GstCaps can be constructed with the following code fragment:
      "height", G_TYPE_INT, 240,
      NULL);
 ```
-
-{{ END_LANG.md }}
-
-{{ PY.md }}
-
-``` python
- caps = Gst.Caps(Gst.Structure("video/x-raw", format="I420", framerate=Gst.Fraction(25, 1),
-     pixel_aspect_ratio=Gst.Fraction(1, 1), width=320, height=240))
-```
-
-{{ END_LANG.md }}
 
 A #GstCaps is fixed when it has no fields with ranges or lists. Use
 gst_caps_is_fixed() to test for fixed caps. Fixed caps can be used in a
@@ -9912,33 +10096,7 @@ The master/slave synchronisation can be tuned with the #GstClock:timeout,
 The #GstClock:timeout property defines the interval to sample the master
 clock and run the calibration functions. #GstClock:window-size defines the
 number of samples to use when calibrating and #GstClock:window-threshold
-defines the minimum number of samples before the calibration is performed.
-
-{{ PY.md }}
-
-## Utilities
-
-### TIME_ARGS
-
-**Time formatting function**: Formats a #GstClockTime into a human-readable string.
-
-Returns a formatted string in "h:mm:ss.nnnnnnnnn" format, or "CLOCK_TIME_NONE" for invalid times.
-
-##### Example:
-
-``` python
-import Gst
-
-# Format a time value
-time_str = Gst.TIME_ARGS(5 * Gst.SECOND + 123456789)
-print(time_str)  # Output: "0:00:05.123456789"
-
-# Handle invalid time
-none_str = Gst.TIME_ARGS(Gst.CLOCK_TIME_NONE)
-print(none_str)  # Output: "CLOCK_TIME_NONE"
-```
-
-{{ END_LANG.md }}</doc>
+defines the minimum number of samples before the calibration is performed.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstclock.h"/>
       <function name="id_compare_func" c:identifier="gst_clock_id_compare_func">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstclock.c">Compares the two #GstClockID instances. This function can be used
@@ -10505,6 +10663,22 @@ given invalid input.</doc>
         <parameters>
           <instance-parameter name="clock" transfer-ownership="none">
             <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstclock.c">a GstClock</doc>
+            <type name="Clock" c:type="GstClock*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="is_system_monotonic" c:identifier="gst_clock_is_system_monotonic" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstsystemclock.c">Checks that @clock is the default system clock, as returned by
+gst_system_clock_obtain(), and is of type %GST_CLOCK_TYPE_MONOTONIC.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gstsystemclock.h"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstsystemclock.c">%TRUE if @clock is the default system monotonic clock,
+  %FALSE otherwise.</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="clock" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstsystemclock.c">a #GstClock</doc>
             <type name="Clock" c:type="GstClock*"/>
           </instance-parameter>
         </parameters>
@@ -11254,6 +11428,24 @@ free it and that the pointer becomes invalid when you free the context.</doc>
           </instance-parameter>
         </parameters>
       </method>
+      <method name="get_task_pool" c:identifier="gst_context_get_task_pool" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaskpool.c">Gets the task pool from @context.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gsttaskpool.h"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaskpool.c">%TRUE if a task pool was set on @context</doc>
+          <type name="gboolean" c:type="gboolean"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="context" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaskpool.c">a #GstContext</doc>
+            <type name="Context" c:type="GstContext*"/>
+          </instance-parameter>
+          <parameter name="pool" direction="out" caller-allocates="0" transfer-ownership="full" nullable="1">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaskpool.c">a #GstTaskPool</doc>
+            <type name="TaskPool" c:type="GstTaskPool**"/>
+          </parameter>
+        </parameters>
+      </method>
       <method name="has_context_type" c:identifier="gst_context_has_context_type" version="1.2">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcontext.c">Checks if @context has @context_type.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gstcontext.h"/>
@@ -11337,6 +11529,25 @@ also: gst_context_ref().</doc>
             <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcontext.c">the context to ref</doc>
             <type name="Context" c:type="GstContext*"/>
           </instance-parameter>
+        </parameters>
+      </method>
+      <method name="set_task_pool" c:identifier="gst_context_set_task_pool" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaskpool.c">Sets @pool on @context as the task pool to be shared between elements.
+If @pool is %NULL, any previously set task pool will be removed from
+the context.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gsttaskpool.h"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="context" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaskpool.c">a #GstContext</doc>
+            <type name="Context" c:type="GstContext*"/>
+          </instance-parameter>
+          <parameter name="pool" transfer-ownership="none" nullable="1" allow-none="1">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaskpool.c">a #GstTaskPool or %NULL to unset</doc>
+            <type name="TaskPool" c:type="GstTaskPool*"/>
+          </parameter>
         </parameters>
       </method>
       <method name="unref" c:identifier="gst_context_unref" version="1.2">
@@ -12401,6 +12612,58 @@ character, a newline character will be added automatically.</doc>
         </parameter>
       </parameters>
     </function-macro>
+    <function-macro name="DEBUG_ONCE" c:identifier="GST_DEBUG_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a debugging message in the default category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.
+
+Example:
+``` c
+// Use in code - this message will only be logged once
+for (i = 0; i &lt; 1000; i++) {
+  GST_DEBUG_ONCE ("Processing iteration %d", i);
+}
+```</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="DEBUG_ONCE_ID" c:identifier="GST_DEBUG_ONCE_ID" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a debugging message for the given identifier in the default category
+exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="id">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="DEBUG_ONCE_OBJECT" c:identifier="GST_DEBUG_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a debugging message belonging to the given object in the default
+category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="object">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
     <function-macro name="DEBUG_PAD_NAME" c:identifier="GST_DEBUG_PAD_NAME" introspectable="0">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Evaluates to 2 strings, that describe the pad. Often used in debugging
 statements.</doc>
@@ -13457,14 +13720,19 @@ and GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS().</doc>
       </member>
       <member name="non_default_params" value="4" c:identifier="GST_DEBUG_GRAPH_SHOW_NON_DEFAULT_PARAMS" glib:nick="non-default-params" glib:name="GST_DEBUG_GRAPH_SHOW_NON_DEFAULT_PARAMS">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstdebugutils.h">show modified parameters on
-                                          elements</doc>
+                                          elements. When this flag is set
+                                          without GST_DEBUG_GRAPH_SHOW_FULL_PARAMS,
+                                          a tooltip with full parameter values
+                                          is added to each element.</doc>
       </member>
       <member name="states" value="8" c:identifier="GST_DEBUG_GRAPH_SHOW_STATES" glib:nick="states" glib:name="GST_DEBUG_GRAPH_SHOW_STATES">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstdebugutils.h">show element states</doc>
       </member>
       <member name="full_params" value="16" c:identifier="GST_DEBUG_GRAPH_SHOW_FULL_PARAMS" glib:nick="full-params" glib:name="GST_DEBUG_GRAPH_SHOW_FULL_PARAMS">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstdebugutils.h">show full element parameter values even
-                                   if they are very long</doc>
+                                   if they are very long. When this flag is
+                                   set, no tooltip is added since the full
+                                   values are already visible in the label.</doc>
       </member>
       <member name="all" value="15" c:identifier="GST_DEBUG_GRAPH_SHOW_ALL" glib:nick="all" glib:name="GST_DEBUG_GRAPH_SHOW_ALL">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstdebugutils.h">show all the typical details that one might want</doc>
@@ -14078,9 +14346,18 @@ providers. Setting @show_all to true might show some devices multiple times.</do
         </parameters>
       </method>
       <method name="start" c:identifier="gst_device_monitor_start" version="1.4">
-        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstdevicemonitor.c">Starts monitoring the devices, one this has succeeded, the
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstdevicemonitor.c">Starts monitoring the devices, once this has succeeded, the
 %GST_MESSAGE_DEVICE_ADDED and %GST_MESSAGE_DEVICE_REMOVED messages
-will be emitted on the bus when the list of devices changes.</doc>
+will be emitted on the bus when the list of devices changes.
+
+Since 1.28, device providers are started asynchronously and
+%GST_MESSAGE_DEVICE_MONITOR_STARTED will be emitted once the initial list
+of devices has been populated, signalling that monitor startup has
+completed.
+
+The monitor will hold a strong reference to itself while it is populating
+devices asynchronously, so you must call gst_device_monitor_stop() before
+unreffing if you want monitoring to stop immediately.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gstdevicemonitor.h"/>
         <return-value transfer-ownership="none">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstdevicemonitor.c">%TRUE if the device monitoring could be started, i.e. at least a
@@ -14333,8 +14610,8 @@ This is for use by subclasses.</doc>
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstdeviceprovider.c">Gets a list of devices that this provider understands. This may actually
 probe the hardware if the provider is not currently started.
 
-If the provider has been started, this will returned the same #GstDevice
-objedcts that have been returned by the #GST_MESSAGE_DEVICE_ADDED messages.</doc>
+If the provider has been started, this will return the same #GstDevice
+objects that have been returned by the #GST_MESSAGE_DEVICE_ADDED messages.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gstdeviceprovider.h"/>
         <return-value transfer-ownership="full">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstdeviceprovider.c">a #GList of
@@ -15860,7 +16137,8 @@ character, a newline character will be added automatically.</doc>
       </parameters>
     </function-macro>
     <function-macro name="ERROR_OBJECT" c:identifier="GST_ERROR_OBJECT" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an error message belonging to the given object in the default category.
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an error message belonging to the given object in the default
+category.
 
 There is no need to finish the end of the message string with a newline
 character, a newline character will be added automatically.</doc>
@@ -15871,6 +16149,50 @@ character, a newline character will be added automatically.</doc>
         </parameter>
         <parameter name="...">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="ERROR_ONCE" c:identifier="GST_ERROR_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an error message in the default category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="ERROR_ONCE_ID" c:identifier="GST_ERROR_ONCE_ID" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an error message for the given identifier in the default category
+exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="id">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="ERROR_ONCE_OBJECT" c:identifier="GST_ERROR_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an error message belonging to the given object in the default
+category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="object">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
@@ -19202,46 +19524,7 @@ The following code example shows you how to create a GstFileSrc element.
   src = gst_element_factory_create (srcfactory, "src");
   g_return_if_fail (src != NULL);
   ...
-]|
-
-{{ PY.md }}
-
-## Helper methods:
-
-### Gst.ElementFactory.get_longname
-
-``` python
-def get_longname(self) -&gt; str:
-```
-
-**Convenience method**: Gets the long name metadata for the factory.
-This is equivalent to calling `get_metadata("long-name")`.
-
-**Returns**: The long name of the element factory.
-
-### Gst.ElementFactory.get_description
-
-``` python
-def get_description(self) -&gt; str:
-```
-
-**Convenience method**: Gets the description metadata for the factory.
-This is equivalent to calling `get_metadata("description")`.
-
-**Returns**: The description of the element factory.
-
-### Gst.ElementFactory.get_klass
-
-``` python
-def get_klass(self) -&gt; str:
-```
-
-**Convenience method**: Gets the klass metadata for the factory.
-This is equivalent to calling `get_metadata("klass")`.
-
-**Returns**: The klass of the element factory.
-
-{{ END_LANG.md }}</doc>
+]|</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstelementfactory.h"/>
       <function name="find" c:identifier="gst_element_factory_find">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstelementfactory.c">Search for an element factory of the given name. Refs the returned
@@ -21867,6 +22150,50 @@ character, a newline character will be added automatically.</doc>
         </parameter>
       </parameters>
     </function-macro>
+    <function-macro name="FIXME_ONCE" c:identifier="GST_FIXME_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a fixme message in the default category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="FIXME_ONCE_ID" c:identifier="GST_FIXME_ONCE_ID" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a fixme message for the given identifier in the default category
+exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="id">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="FIXME_ONCE_OBJECT" c:identifier="GST_FIXME_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a fixme message belonging to the given object in the default
+category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="object">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
     <constant name="FLAG_SET_MASK_EXACT" value="4294967295" c:type="GST_FLAG_SET_MASK_EXACT" version="1.6">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.h">A mask value with all bits set, for use as a
 GstFlagSet mask where all flag bits must match
@@ -22440,6 +22767,46 @@ character, a newline character will be added automatically.</doc>
         </parameter>
         <parameter name="...">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="INFO_ONCE" c:identifier="GST_INFO_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an informational message in the default category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="INFO_ONCE_ID" c:identifier="GST_INFO_ONCE_ID" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output an informational message for the given identifier the default
+category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="id">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="INFO_ONCE_OBJECT" c:identifier="GST_INFO_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs an info message in the specified context.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="object">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
@@ -24218,6 +24585,46 @@ character, a newline character will be added automatically.</doc>
         </parameter>
       </parameters>
     </function-macro>
+    <function-macro name="LOG_ONCE" c:identifier="GST_LOG_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a logging message in the default category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="LOG_ONCE_ID" c:identifier="GST_LOG_ONCE_ID" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a logging message for the given identifier in the default category
+exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="id">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="LOG_ONCE_OBJECT" c:identifier="GST_LOG_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Logs a log message in the specified context.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="object">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
     <enumeration name="LibraryError" glib:type-name="GstLibraryError" glib:get-type="gst_library_error_get_type" c:type="GstLibraryError" glib:error-domain="gst-library-error-quark">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsterror.h">Library errors are for errors from the library being used by elements
 (initializing, finalizing, settings, ...)</doc>
@@ -25030,6 +25437,11 @@ gst_mini_object_lock() and gst_mini_object_unlock().</doc>
       <member name="write" value="2" c:identifier="GST_MAP_WRITE" glib:nick="write" glib:name="GST_MAP_WRITE">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmemory.h">map for write access</doc>
       </member>
+      <member name="ref_memory" value="256" c:identifier="GST_MAP_REF_MEMORY" version="1.28" glib:nick="ref-memory" glib:name="GST_MAP_REF_MEMORY">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmemory.h">Take another reference of the memory and store it in the GstMapInfo. This
+makes sure that the memory stays valid  while it is mapped and
+automatically unrefs it on unmap.</doc>
+      </member>
       <member name="flag_last" value="65536" c:identifier="GST_MAP_FLAG_LAST" glib:nick="flag-last" glib:name="GST_MAP_FLAG_LAST">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmemory.h">first flag that can be used for custom purposes</doc>
       </member>
@@ -25076,6 +25488,19 @@ needs to be unmapped using gst_buffer_unmap() or gst_memory_unmap(). Instead,
           <type name="gpointer" c:type="gpointer"/>
         </array>
       </field>
+      <method name="clear" c:identifier="gst_map_info_clear" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmemory.c">Release the memory obtained with gst_memory_map()</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gstmemory.h"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="info" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmemory.c">a #GstMapInfo</doc>
+            <type name="MapInfo" c:type="GstMapInfo*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
       <method name="get_data" c:identifier="gst_map_info_get_data" version="1.28">
         <source-position filename="../subprojects/gstreamer/gst/gstmemory.h"/>
         <return-value transfer-ownership="none" nullable="1">
@@ -25093,6 +25518,19 @@ needs to be unmapped using gst_buffer_unmap() or gst_memory_unmap(). Instead,
             <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmemory.c">Return location of the size of the data.</doc>
             <type name="gsize" c:type="gsize*"/>
           </parameter>
+        </parameters>
+      </method>
+      <method name="init" c:identifier="gst_map_info_init" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmemory.c">Initializes @info.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gstmemory.h"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="info" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmemory.c">a #GstMapInfo</doc>
+            <type name="MapInfo" c:type="GstMapInfo*"/>
+          </instance-parameter>
         </parameters>
       </method>
     </record>
@@ -25132,18 +25570,7 @@ copy. gst_memory_share() will create a new memory block that shares the
 memory with an existing memory block at a custom offset and with a custom
 size.
 
-Memory can be efficiently merged when gst_memory_is_span() returns %TRUE.
-
-{{ PY.md }}
-
-The Memory objects automatically inherit from #GstMiniObject.
-
-Following GStreamer's copy-on-write semantics: if you need
-to modify a memory that might be shared, call
-[Gst.MiniObject.make_writable](gstminiobject.html#gst-miniobject-make-writable)
-first to ensure you have a writable copy.
-
-{{ END_LANG.md }}</doc>
+Memory can be efficiently merged when gst_memory_is_span() returns %TRUE.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstmemory.h"/>
       <field name="mini_object" writable="1">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmemory.h">parent structure</doc>
@@ -25429,24 +25856,7 @@ This function can return %FALSE for various reasons:
 until gst_memory_unmap() is called.
 
 For each gst_memory_map() call, a corresponding gst_memory_unmap() call
-should be done.
-
-{{ PY.md }}
-
-##### Example:
-
-**Context manager support**: Returns a `Gst.MapInfo` object that can be used
-as a context manager for automatic unmapping.
-
-``` python
-# Context manager automatically handles unmapping
-with memory.map(Gst.MapFlags.READWRITE) as mapinfo:
-    # Access and modify the memory data
-    mapinfo.data[0:4] = b'\x00\x01\x02\x03'
-    # mapinfo is automatically unmapped when exiting the with block
-```
-
-{{ END_LANG.md }}</doc>
+should be done.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gstmemory.h"/>
         <return-value transfer-ownership="none">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmemory.c">%TRUE if the map operation was successful.</doc>
@@ -26066,6 +26476,28 @@ properties has changed and @device represent the new modified version of @change
           <parameter name="changed_device" transfer-ownership="none">
             <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmessage.c">The old version of the device.</doc>
             <type name="Device" c:type="GstDevice*"/>
+          </parameter>
+        </parameters>
+      </constructor>
+      <constructor name="new_device_monitor_started" c:identifier="gst_message_new_device_monitor_started" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmessage.c">Creates a new device-monitor-started message. The device-monitor-started
+message is produced by a #GstDeviceMonitor once it has started probing
+devices. It does not indicate whether any #GstDeviceProvider instances
+support monitoring at all, only whether at least one was able to start
+probing.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gstmessage.h"/>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmessage.c">a newly allocated #GstMessage</doc>
+          <type name="Message" c:type="GstMessage*"/>
+        </return-value>
+        <parameters>
+          <parameter name="src" transfer-ownership="none" nullable="1" allow-none="1">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmessage.c">The #GstObject that created the message</doc>
+            <type name="Object" c:type="GstObject*"/>
+          </parameter>
+          <parameter name="success" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmessage.c">Whether the monitor was started successfully</doc>
+            <type name="gboolean" c:type="gboolean"/>
           </parameter>
         </parameters>
       </constructor>
@@ -27336,6 +27768,26 @@ changed and @device represents the new modified version of @changed_device.</doc
             <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmessage.c">A location where to store a
  pointer to the old version of the #GstDevice, or %NULL</doc>
             <type name="Device" c:type="GstDevice**"/>
+          </parameter>
+        </parameters>
+      </method>
+      <method name="parse_device_monitor_started" c:identifier="gst_message_parse_device_monitor_started" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmessage.c">Parses a device-monitor-started message. The device-monitor-started message
+is produced by a #GstDeviceMonitor once at least one #GstDeviceProvider
+successfully starts probing.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gstmessage.h"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="message" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmessage.c">a #GstMessage of type %GST_MESSAGE_DEVICE_MONITOR_STARTED</doc>
+            <type name="Message" c:type="GstMessage*"/>
+          </instance-parameter>
+          <parameter name="success" direction="out" caller-allocates="0" transfer-ownership="full">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmessage.c">Result location for whether the #GstDeviceMonitor was
+ successfully started</doc>
+            <type name="gboolean" c:type="gboolean*"/>
           </parameter>
         </parameters>
       </method>
@@ -28743,6 +29195,9 @@ was updated.</doc>
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmessage.h">Message sent by elements to request the
     running time from the pipeline when an instant rate change should
     be applied (which may be in the past when the answer arrives). (Since: 1.18)</doc>
+      </member>
+      <member name="device_monitor_started" value="2147483657" c:identifier="GST_MESSAGE_DEVICE_MONITOR_STARTED" version="1.28" glib:nick="device-monitor-started" glib:name="GST_MESSAGE_DEVICE_MONITOR_STARTED">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmessage.h">Message indicating the #GstDeviceMonitor has completed async startup.</doc>
       </member>
       <member name="any" value="4294967295" c:identifier="GST_MESSAGE_ANY" glib:nick="any" glib:name="GST_MESSAGE_ANY">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstmessage.h">mask for all of the above messages.</doc>
@@ -30643,6 +31098,24 @@ Free-function: g_free</doc>
 MT safe. Grabs and releases the #GstObject's LOCK for all objects
          in the hierarchy.</doc>
           <type name="utf8" c:type="gchar*"/>
+        </return-value>
+        <parameters>
+          <instance-parameter name="object" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstobject.c">a #GstObject</doc>
+            <type name="Object" c:type="GstObject*"/>
+          </instance-parameter>
+        </parameters>
+      </method>
+      <method name="get_toplevel" c:identifier="gst_object_get_toplevel" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstobject.c">Returns the toplevel parent of @object. This function increases the refcount
+of the toplevel object so you should gst_object_unref() it after usage.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gstobject.h"/>
+        <return-value transfer-ownership="full">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstobject.c">toplevel of @object, or @object itself if it has no
+  parent. unref after usage.
+
+MT safe. Grabs and releases @object's LOCK.</doc>
+          <type name="Object" c:type="GstObject*"/>
         </return-value>
         <parameters>
           <instance-parameter name="object" transfer-ownership="none">
@@ -35522,7 +35995,7 @@ removing or modifying.</doc>
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstpad.h">the #GstPad.</doc>
           <type name="Pad" c:type="GstPad*"/>
         </parameter>
-        <parameter name="event" transfer-ownership="none" nullable="1" allow-none="1">
+        <parameter name="event" direction="inout" caller-allocates="0" transfer-ownership="full" nullable="1" allow-none="1">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstpad.h">a sticky #GstEvent.</doc>
           <type name="Event" c:type="GstEvent**"/>
         </parameter>
@@ -42558,18 +43031,7 @@ strings.</doc>
     </function-macro>
     <record name="Sample" c:type="GstSample" opaque="1" glib:type-name="GstSample" glib:get-type="gst_sample_get_type" c:symbol-prefix="sample">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstsample.c">A #GstSample is a small object containing data, a type, timing and
-extra arbitrary information.
-
-{{ PY.md }}
-
-The Sample objects automatically inherit from #GstMiniObject.
-
-Following GStreamer's copy-on-write semantics: if you need
-to modify a sample that might be shared, call
-[Gst.MiniObject.make_writable](gstminiobject.html#gst-miniobject-make-writable)
-first to ensure you have a writable copy.
-
-{{ END_LANG.md }}</doc>
+extra arbitrary information.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstsample.h"/>
       <constructor name="new" c:identifier="gst_sample_new">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstsample.c">Create a new #GstSample with the provided details.
@@ -44674,6 +45136,9 @@ whether a stream is of a certain type.</doc>
       <member name="text" value="16" c:identifier="GST_STREAM_TYPE_TEXT" glib:nick="text" glib:name="GST_STREAM_TYPE_TEXT">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gststreams.h">The stream contains subtitle / subpicture data.</doc>
       </member>
+      <member name="metadata" value="32" c:identifier="GST_STREAM_TYPE_METADATA" version="1.28" glib:nick="metadata" glib:name="GST_STREAM_TYPE_METADATA">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gststreams.h">The stream contains metadata.</doc>
+      </member>
       <function name="get_name" c:identifier="gst_stream_type_get_name" version="1.10">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gststreams.c">Get a descriptive string for a given #GstStreamType</doc>
         <source-position filename="../subprojects/gstreamer/gst/gststreams.h"/>
@@ -44714,21 +45179,11 @@ gst_structure_set().
 Field values can be retrieved with gst_structure_get_value() or the more
 convenient gst_structure_get_*() functions.
 
-{{ C+JS_FALLBACK.md }}
-
 Fields can be removed with gst_structure_remove_field() or
 gst_structure_remove_fields().
 
 Strings in structures must be ASCII or UTF-8 encoded. Other encodings are not
 allowed. Strings may be %NULL however.
-
-{{ END_LANG.md }}
-
-{{ PY.md }}
-
-Fields can be removed with `del struct[key]` or `struct.remove_field(key)`.
-
-{{ END_LANG.md }}
 
 ## The serialization format
 
@@ -44765,15 +45220,15 @@ values are explicitly typed.
 
 Some types have special delimiters:
 
-- #GstValueArray are inside "less and greater than" (`&lt;` and
+- [GstValueArray](GST_TYPE_ARRAY) are inside "less and greater than" (`&lt;` and
   `&gt;`). For example `a-structure, array=&lt;1, 2, 3&gt;
 - Ranges are inside brackets (`[` and `]`). For example `a-structure,
   range=[1, 6, 2]` 1 being the min value, 6 the maximum and 2 the step. To
-  specify a #GstInt64Range you need to explicitly specify it like:
+  specify a #GST_TYPE_INT64_RANGE you need to explicitly specify it like:
   `a-structure, a-int64-range=(gint64) [1, 5]`
-- #GstValueList are inside curly brackets (`{` and `}`).
+- [GstValueList](GST_TYPE_LIST) are inside curly brackets (`{` and `}`).
   For example `a-structure, list={1, 2, 3}`
-- #GStrv are inside "less and greater than" (`&lt;` and
+- [GStrv](G_TYPE_STRV) are inside "less and greater than" (`&lt;` and
   `&gt;`) and each string is double-quoted.
   For example `a-structure, strv=(GStrv)&lt;"foo", "bar"&gt;`. Since 1.26.0.
 
@@ -45474,7 +45929,7 @@ release with either g_free() or the suitable function for the boxed type.</doc>
       </method>
       <method name="get_array" c:identifier="gst_structure_get_array" version="1.12">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gststructure.c">This is useful in language bindings where unknown #GValue types are not
-supported. This function will convert the #GstValueArray into a newly
+supported. This function will convert the %GST_TYPE_ARRAY into a newly
 allocated #GValueArray and return it through @array. Be aware that this is
 slower then getting the #GValue directly.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gststructure.h"/>
@@ -46936,9 +47391,9 @@ Variable arguments should be in the form field name, field type
       </method>
       <method name="set_array" c:identifier="gst_structure_set_array" version="1.12">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gststructure.c">This is useful in language bindings where unknown GValue types are not
-supported. This function will convert a @array to #GstValueArray and set
+supported. This function will convert a @array to %GST_TYPE_ARRAY and set
 the field specified by @fieldname.  Be aware that this is slower then using
-#GstValueArray in a #GValue directly.</doc>
+%GST_TYPE_ARRAY in a #GValue directly.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gststructure.h"/>
         <return-value transfer-ownership="none">
           <type name="none" c:type="void"/>
@@ -46960,7 +47415,7 @@ the field specified by @fieldname.  Be aware that this is slower then using
       </method>
       <method name="set_list" c:identifier="gst_structure_set_list" version="1.12">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gststructure.c">This is useful in language bindings where unknown GValue types are not
-supported. This function will convert a @array to #GstValueList and set
+supported. This function will convert a @array to %GST_TYPE_LIST and set
 the field specified by @fieldname. Be aware that this is slower then using
 %GST_TYPE_LIST in a #GValue directly.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gststructure.h"/>
@@ -47138,13 +47593,7 @@ lifetime of the process, e.g. has to be a static string.</doc>
       <method name="set_value" c:identifier="gst_structure_set_value">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gststructure.c">Sets the field with the given name @field to @value.  If the field
 does not exist, it is created.  If the field exists, the previous
-value is replaced and freed.
-
-{{ PY.md }}
-
-Raises `Gst.NotWritableStructure`
-
-{{ END_LANG.md }}</doc>
+value is replaced and freed.</doc>
         <source-position filename="../subprojects/gstreamer/gst/gststructure.h"/>
         <return-value transfer-ownership="none">
           <type name="none" c:type="void"/>
@@ -47537,7 +47986,12 @@ The album name as it should be displayed, e.g. 'The Jazz Guitar'</doc>
       <type name="utf8" c:type="gchar*"/>
     </constant>
     <constant name="TAG_ALBUM_GAIN" value="replaygain-album-gain" c:type="GST_TAG_ALBUM_GAIN">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaglist.h">album gain in db (double)</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaglist.h">album gain in dB (double)</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gsttaglist.h"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <constant name="TAG_ALBUM_GAIN_R128" value="r128-album-gain" c:type="GST_TAG_ALBUM_GAIN_R128" version="1.28">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaglist.h">track gain in dB (double)</doc>
       <source-position filename="../subprojects/gstreamer/gst/gsttaglist.h"/>
       <type name="utf8" c:type="gchar*"/>
     </constant>
@@ -48053,7 +48507,12 @@ The title as it should be sorted, e.g. 'Doll House, The'</doc>
       <type name="utf8" c:type="gchar*"/>
     </constant>
     <constant name="TAG_TRACK_GAIN" value="replaygain-track-gain" c:type="GST_TAG_TRACK_GAIN">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaglist.h">track gain in db (double)</doc>
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaglist.h">track gain in dB (double)</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gsttaglist.h"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
+    <constant name="TAG_TRACK_GAIN_R128" value="r128-track-gain" c:type="GST_TAG_TRACK_GAIN_R128" version="1.28">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaglist.h">track gain in dB (double)</doc>
       <source-position filename="../subprojects/gstreamer/gst/gsttaglist.h"/>
       <type name="utf8" c:type="gchar*"/>
     </constant>
@@ -48160,6 +48619,18 @@ The higher the value, the more the user likes this media
         </parameter>
       </parameters>
     </function-macro>
+    <constant name="TASK_POOL_CONTEXT_TYPE" value="gst.task.pool" c:type="GST_TASK_POOL_CONTEXT_TYPE" version="1.28">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaskpool.h">The well-known context type for sharing a #GstTaskPool between elements
+in a pipeline.
+
+Elements that support this context will post a %GST_MESSAGE_NEED_CONTEXT
+message on the bus when they need a task pool. Applications can respond
+by setting the context on the element or the pipeline. Elements will not
+query neighbors for this context type as the task pool is optional and
+elements will fall back to their default behavior if no pool is provided.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gsttaskpool.h"/>
+      <type name="utf8" c:type="gchar*"/>
+    </constant>
     <function-macro name="TASK_POOL_GET_CLASS" c:identifier="GST_TASK_POOL_GET_CLASS" introspectable="0">
       <source-position filename="../subprojects/gstreamer/gst/gsttaskpool.h"/>
       <parameters>
@@ -48444,7 +48915,7 @@ character, a newline character will be added automatically.</doc>
       </parameters>
     </function-macro>
     <function-macro name="TRACE_ID" c:identifier="GST_TRACE_ID" version="1.22" introspectable="0">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a tracing message for the given identifier  in the default category.
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a tracing message for the given identifier in the default category.
 
 There is no need to finish the end of the message string with a newline
 character, a newline character will be added automatically.</doc>
@@ -48470,6 +48941,50 @@ character, a newline character will be added automatically.</doc>
         </parameter>
         <parameter name="...">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">printf-style message to output</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="TRACE_ONCE" c:identifier="GST_TRACE_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a tracing message in the default category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="TRACE_ONCE_ID" c:identifier="GST_TRACE_ONCE_ID" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a tracing message for the given identifier in the default category
+exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="id">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="TRACE_ONCE_OBJECT" c:identifier="GST_TRACE_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a tracing message belonging to the given object in the default
+category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="object">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
         </parameter>
       </parameters>
     </function-macro>
@@ -48617,49 +49132,11 @@ not modify the tag list.</doc>
         </parameter>
       </parameters>
     </callback>
-    <record name="TagList" c:type="GstTagList" version="1.24" glib:type-name="GstTagList" glib:get-type="gst_tag_list_get_type" c:symbol-prefix="tag_list">
-      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaglist.c">{{ C+JS_FALLBACK.md }}
-List of tags and values used to describe media metadata.
+    <record name="TagList" c:type="GstTagList" glib:type-name="GstTagList" glib:get-type="gst_tag_list_get_type" c:symbol-prefix="tag_list">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaglist.c">List of tags and values used to describe media metadata.
 
 Strings in structures must be ASCII or UTF-8 encoded. Other encodings are
-not allowed. Strings must not be empty or %NULL.
-
-{{ END_LANG.md }}
-
-
-{{ PY.md }}
-
-List of tags and values used to describe media metadata.
-
-**Dictionary-like access**: TagList supports Python's container protocols, allowing dictionary-style access
-to tags using `[]` notation, `len()`, and iteration with `.keys()`.
-
-##### Example:
-
-``` python
-taglist = Gst.TagList()
-
-# Dictionary-style assignment and access
-taglist["title"] = "My Song"
-taglist["artist"] = "Artist Name"
-
-# Use standard Python functions
-print(len(taglist))  # Get number of tags
-print(taglist["title"])  # Access by key
-
-# Iterate over tag names
-for tag_name in taglist.keys():
-    print(f"{tag_name}: {taglist[tag_name]}")
-```
-
-The TagList objects automatically inherit from #GstMiniObject.
-
-Following GStreamer's copy-on-write semantics: if you need
-to modify a taglist that might be shared, call
-[Gst.MiniObject.make_writable](gstminiobject.html#gst-miniobject-make-writable)
-first to ensure you have a writable copy.
-
-{{ END_LANG.md }}</doc>
+not allowed. Strings must not be empty or %NULL.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gsttaglist.h"/>
       <field name="mini_object" writable="1">
         <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gsttaglist.h">the parent type</doc>
@@ -53891,6 +54368,15 @@ start with a alphabetic character. See RFC 3986 Section 3.1.</doc>
         </parameter>
       </parameters>
     </function-macro>
+    <function-macro name="VALUE_HOLDS_UNIQUE_LIST" c:identifier="GST_VALUE_HOLDS_UNIQUE_LIST" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.h">Checks if the given #GValue contains a #GstValueUniqueList value.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstvalue.h"/>
+      <parameters>
+        <parameter name="x">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.h">the #GValue to check</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
     <constant name="VALUE_LESS_THAN" value="-1" c:type="GST_VALUE_LESS_THAN">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.h">Indicates that the first value provided to a comparison function
 (gst_value_compare()) is lesser than the second one.</doc>
@@ -53908,12 +54394,12 @@ determine a order for the two provided values.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstversion.h"/>
       <type name="gint" c:type="gint"/>
     </constant>
-    <constant name="VERSION_MICRO" value="2" c:type="GST_VERSION_MICRO">
+    <constant name="VERSION_MICRO" value="0" c:type="GST_VERSION_MICRO">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstversion.h">The micro version of GStreamer at compile time:</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstversion.h"/>
       <type name="gint" c:type="gint"/>
     </constant>
-    <constant name="VERSION_MINOR" value="27" c:type="GST_VERSION_MINOR">
+    <constant name="VERSION_MINOR" value="29" c:type="GST_VERSION_MINOR">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstversion.h">The minor version of GStreamer at compile time:</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstversion.h"/>
       <type name="gint" c:type="gint"/>
@@ -54309,6 +54795,116 @@ Free-function: g_free</doc>
         </array>
       </field>
     </record>
+    <class name="ValueUniqueList" c:symbol-prefix="value_unique_list" version="1.28" glib:type-name="GstValueUniqueList" glib:get-type="gst_value_unique_list_get_type" glib:fundamental="1">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.h">A fundamental type that describes a set of #GValue</doc>
+      <function name="append_and_take_value" c:identifier="gst_value_unique_list_append_and_take_value" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">Appends @append_value to the GstValueUniqueList in @value.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gstvalue.h"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="value" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">a #GValue of type #GST_TYPE_UNIQUE_LIST</doc>
+            <type name="GObject.Value" c:type="GValue*"/>
+          </parameter>
+          <parameter name="append_value" transfer-ownership="full">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">the value to append</doc>
+            <type name="GObject.Value" c:type="GValue*"/>
+          </parameter>
+        </parameters>
+      </function>
+      <function name="append_value" c:identifier="gst_value_unique_list_append_value" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">Appends @append_value to the GstValueUniqueList in @value.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gstvalue.h"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="value" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">a #GValue of type #GST_TYPE_UNIQUE_LIST</doc>
+            <type name="GObject.Value" c:type="GValue*"/>
+          </parameter>
+          <parameter name="append_value" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">the value to append</doc>
+            <type name="GObject.Value" c:type="const GValue*"/>
+          </parameter>
+        </parameters>
+      </function>
+      <function name="concat" c:identifier="gst_value_unique_list_concat" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">Concatenates copies of @value1 and @value2 into a set.  Values that are not
+of type #GST_TYPE_UNIQUE_LIST are treated as if they were sets of length 1.
+@dest will be initialized to the type #GST_TYPE_UNIQUE_LIST.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gstvalue.h"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="dest" direction="out" caller-allocates="1" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">an uninitialized #GValue to take the result</doc>
+            <type name="GObject.Value" c:type="GValue*"/>
+          </parameter>
+          <parameter name="value1" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">a #GValue</doc>
+            <type name="GObject.Value" c:type="const GValue*"/>
+          </parameter>
+          <parameter name="value2" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">a #GValue</doc>
+            <type name="GObject.Value" c:type="const GValue*"/>
+          </parameter>
+        </parameters>
+      </function>
+      <function name="get_size" c:identifier="gst_value_unique_list_get_size" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">Gets the number of values contained in @value.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gstvalue.h"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">the number of values</doc>
+          <type name="guint" c:type="guint"/>
+        </return-value>
+        <parameters>
+          <parameter name="value" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">a #GValue of type #GST_TYPE_UNIQUE_LIST</doc>
+            <type name="GObject.Value" c:type="const GValue*"/>
+          </parameter>
+        </parameters>
+      </function>
+      <function name="get_value" c:identifier="gst_value_unique_list_get_value" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">Gets the value that is a member of the set contained in @value and
+has the index @index.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gstvalue.h"/>
+        <return-value transfer-ownership="none">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">the value at the given index</doc>
+          <type name="GObject.Value" c:type="const GValue*"/>
+        </return-value>
+        <parameters>
+          <parameter name="value" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">a #GValue of type #GST_TYPE_UNIQUE_LIST</doc>
+            <type name="GObject.Value" c:type="const GValue*"/>
+          </parameter>
+          <parameter name="index" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">index of value to get from the set</doc>
+            <type name="guint" c:type="guint"/>
+          </parameter>
+        </parameters>
+      </function>
+      <function name="prepend_value" c:identifier="gst_value_unique_list_prepend_value" version="1.28">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">Prepends @prepend_value to the GstValueUniqueList in @value.</doc>
+        <source-position filename="../subprojects/gstreamer/gst/gstvalue.h"/>
+        <return-value transfer-ownership="none">
+          <type name="none" c:type="void"/>
+        </return-value>
+        <parameters>
+          <parameter name="value" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">a #GValue of type #GST_TYPE_UNIQUE_LIST</doc>
+            <type name="GObject.Value" c:type="GValue*"/>
+          </parameter>
+          <parameter name="prepend_value" transfer-ownership="none">
+            <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvalue.c">the value to prepend</doc>
+            <type name="GObject.Value" c:type="const GValue*"/>
+          </parameter>
+        </parameters>
+      </function>
+    </class>
     <record name="VecDeque" c:type="GstVecDeque" disguised="1" opaque="1" version="1.26" introspectable="0">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstvecdeque.c">#GstVecDeque is an object that provides standard double-ended queue (deque)
 functionality based on an array instead of linked lists. This reduces the
@@ -54813,6 +55409,50 @@ character, a newline character will be added automatically.</doc>
         </parameter>
       </parameters>
     </function-macro>
+    <function-macro name="WARNING_ONCE" c:identifier="GST_WARNING_ONCE" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a warning message in the default category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="WARNING_ONCE_ID" c:identifier="GST_WARNING_ONCE_ID" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a warning message for the given identifier in the default category
+exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="id">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">an object ID or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
+    <function-macro name="WARNING_ONCE_OBJECT" c:identifier="GST_WARNING_ONCE_OBJECT" version="1.28" introspectable="0">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">Output a warning message belonging to the given object in the default
+category exactly once per statement.
+
+There is no need to finish the end of the message string with a newline
+character, a newline character will be added automatically.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
+      <parameters>
+        <parameter name="object">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">a #GObject or %NULL</doc>
+        </parameter>
+        <parameter name="...">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.h">format string and optional arguments</doc>
+        </parameter>
+      </parameters>
+    </function-macro>
     <function-macro name="WRITE_UINT16_BE" c:identifier="GST_WRITE_UINT16_BE" introspectable="0">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstutils.h">Store a 16 bit unsigned integer value in big endian format into the memory buffer.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstutils.h"/>
@@ -55124,9 +55764,11 @@ amount of memory allocated as @xy, i.e. 2*n*sizeof(GstClockTime).
             <type name="ClockTime" c:type="GstClockTime"/>
           </array>
         </parameter>
-        <parameter name="temp" transfer-ownership="none">
+        <parameter name="temp" transfer-ownership="none" nullable="1" allow-none="1">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstutils.c">Temporary scratch space used by the function</doc>
-          <type name="ClockTime" c:type="GstClockTime*"/>
+          <array zero-terminated="0" c:type="GstClockTime*">
+            <type name="ClockTime" c:type="GstClockTime"/>
+          </array>
         </parameter>
         <parameter name="n" transfer-ownership="none">
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstutils.c">number of (x,y) pairs</doc>
@@ -55262,6 +55904,32 @@ of @new_caps.</doc>
           <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcaps.c">pointer to a #GstCaps that will
     replace the caps pointed to by @old_caps.</doc>
           <type name="Caps" c:type="GstCaps*"/>
+        </parameter>
+      </parameters>
+    </function>
+    <function name="check_version" c:identifier="gst_check_version" version="1.28">
+      <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gst.c">Applications might want to check if the runtime GStreamer version is greater
+or equal to the version specified using @major, @minor and @micro.</doc>
+      <source-position filename="../subprojects/gstreamer/gst/gst.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gst.c">%TRUE if the GStreamer version is greater or equal to
+@major\.@minor\.@micro, %FALSE otherwise. Also this function returns %FALSE
+when checking for a different @major version to the current one, as major
+version bumps are ABI breaks anyway.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+      <parameters>
+        <parameter name="major" transfer-ownership="none">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gst.c">Major version number</doc>
+          <type name="guint" c:type="guint"/>
+        </parameter>
+        <parameter name="minor" transfer-ownership="none">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gst.c">Minor version number</doc>
+          <type name="guint" c:type="guint"/>
+        </parameter>
+        <parameter name="micro" transfer-ownership="none">
+          <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gst.c">Micro version number</doc>
+          <type name="guint" c:type="guint"/>
         </parameter>
       </parameters>
     </function>
@@ -55558,6 +56226,90 @@ Either @new_context or the #GstContext pointed to by @old_context may be %NULL.<
       <attribute name="doc.skip" value="true"/>
       <return-value transfer-ownership="none">
         <type name="GLib.Quark" c:type="GQuark"/>
+      </return-value>
+    </function>
+    <function name="cpuid_supports_arm_neon" c:identifier="gst_cpuid_supports_arm_neon" version="1.28">
+      <source-position filename="../subprojects/gstreamer/gst/gstcpuid.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcpuid.c">%TRUE if NEON (32-bit) is supported by the CPU, %FALSE otherwise.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="cpuid_supports_arm_neon64" c:identifier="gst_cpuid_supports_arm_neon64" version="1.28">
+      <source-position filename="../subprojects/gstreamer/gst/gstcpuid.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcpuid.c">%TRUE if NEON (64-bit) is supported by the CPU, %FALSE otherwise.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="cpuid_supports_x86_3dnow" c:identifier="gst_cpuid_supports_x86_3dnow" version="1.28">
+      <source-position filename="../subprojects/gstreamer/gst/gstcpuid.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcpuid.c">%TRUE if 3DNow! is supported by the CPU, %FALSE otherwise.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="cpuid_supports_x86_avx" c:identifier="gst_cpuid_supports_x86_avx" version="1.28">
+      <source-position filename="../subprojects/gstreamer/gst/gstcpuid.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcpuid.c">%TRUE if AVX is supported by the CPU, %FALSE otherwise.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="cpuid_supports_x86_avx2" c:identifier="gst_cpuid_supports_x86_avx2" version="1.28">
+      <source-position filename="../subprojects/gstreamer/gst/gstcpuid.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcpuid.c">%TRUE if avx2 is supported by the CPU, %FALSE otherwise.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="cpuid_supports_x86_mmx" c:identifier="gst_cpuid_supports_x86_mmx" version="1.28">
+      <source-position filename="../subprojects/gstreamer/gst/gstcpuid.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcpuid.c">%TRUE if MMX is supported by the CPU, %FALSE otherwise.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="cpuid_supports_x86_mmxext" c:identifier="gst_cpuid_supports_x86_mmxext" version="1.28">
+      <source-position filename="../subprojects/gstreamer/gst/gstcpuid.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcpuid.c">%TRUE if extended MMX is supported by the CPU, %FALSE otherwise.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="cpuid_supports_x86_sse2" c:identifier="gst_cpuid_supports_x86_sse2" version="1.28">
+      <source-position filename="../subprojects/gstreamer/gst/gstcpuid.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcpuid.c">%TRUE if SSE2 is supported by the CPU, %FALSE otherwise.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="cpuid_supports_x86_sse3" c:identifier="gst_cpuid_supports_x86_sse3" version="1.28">
+      <source-position filename="../subprojects/gstreamer/gst/gstcpuid.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcpuid.c">%TRUE if SSE3 is supported by the CPU, %FALSE otherwise.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="cpuid_supports_x86_sse4_1" c:identifier="gst_cpuid_supports_x86_sse4_1" version="1.28">
+      <source-position filename="../subprojects/gstreamer/gst/gstcpuid.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcpuid.c">%TRUE if SSE4.1 is supported by the CPU, %FALSE otherwise.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="cpuid_supports_x86_sse4_2" c:identifier="gst_cpuid_supports_x86_sse4_2" version="1.28">
+      <source-position filename="../subprojects/gstreamer/gst/gstcpuid.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcpuid.c">%TRUE if SSSE3 is supported by the CPU, %FALSE otherwise.</doc>
+        <type name="gboolean" c:type="gboolean"/>
+      </return-value>
+    </function>
+    <function name="cpuid_supports_x86_ssse3" c:identifier="gst_cpuid_supports_x86_ssse3" version="1.28">
+      <source-position filename="../subprojects/gstreamer/gst/gstcpuid.h"/>
+      <return-value transfer-ownership="none">
+        <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstcpuid.c">%TRUE if SSSE3 is supported by the CPU, %FALSE otherwise.</doc>
+        <type name="gboolean" c:type="gboolean"/>
       </return-value>
     </function>
     <function name="debug_add_log_function" c:identifier="gst_debug_add_log_function">
@@ -56001,7 +56753,9 @@ would write out.</doc>
     <function name="debug_log_id_literal_with_context" c:identifier="gst_debug_log_id_literal_with_context" version="1.28">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.c">Logs a message with the specified context and ID. If the context has already
 seen this message based on its flags configuration, the message will not be
-logged.</doc>
+logged.
+
+@level &gt;= %GST_LEVEL_MEMDUMP is not supported.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <return-value transfer-ownership="none">
         <type name="none" c:type="void"/>
@@ -56082,7 +56836,9 @@ logged.</doc>
     <function name="debug_log_id_with_context" c:identifier="gst_debug_log_id_with_context" version="1.28" introspectable="0">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.c">Logs a message with the specified context and ID. If the context has already
 seen this message based on its flags configuration, the message will not be
-logged.</doc>
+logged.
+
+@level &gt;= %GST_LEVEL_MEMDUMP is not supported.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <return-value transfer-ownership="none">
         <type name="none" c:type="void"/>
@@ -56125,7 +56881,9 @@ logged.</doc>
     <function name="debug_log_id_with_context_valist" c:identifier="gst_debug_log_id_with_context_valist" version="1.28" introspectable="0">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.c">Logs a message with the specified context and ID. If the context has already
 seen this message based on its flags configuration, the message will not be
-logged.</doc>
+logged.
+
+@level &gt;= %GST_LEVEL_MEMDUMP is not supported.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <return-value transfer-ownership="none">
         <type name="none" c:type="void"/>
@@ -56205,7 +56963,9 @@ logged.</doc>
     </function>
     <function name="debug_log_literal_with_context" c:identifier="gst_debug_log_literal_with_context" version="1.28">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.c">Logs a literal message with the specified context. Depending on the context
-state, the message may not be logged at all.</doc>
+state, the message may not be logged at all.
+
+@level &gt;= %GST_LEVEL_MEMDUMP is not supported.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <return-value transfer-ownership="none">
         <type name="none" c:type="void"/>
@@ -56286,7 +57046,9 @@ state, the message may not be logged at all.</doc>
     </function>
     <function name="debug_log_with_context" c:identifier="gst_debug_log_with_context" version="1.28" introspectable="0">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.c">Logs a message with the specified context. If the context has already seen this
-message based on its flags configuration, the message will not be logged.</doc>
+message based on its flags configuration, the message will not be logged.
+
+@level &gt;= %GST_LEVEL_MEMDUMP is not supported.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <return-value transfer-ownership="none">
         <type name="none" c:type="void"/>
@@ -56330,7 +57092,9 @@ message based on its flags configuration, the message will not be logged.</doc>
     <function name="debug_log_with_context_valist" c:identifier="gst_debug_log_with_context_valist" version="1.28" introspectable="0">
       <doc xml:space="preserve" filename="../subprojects/gstreamer/gst/gstinfo.c">Logs a message with the specified context using a va_list. If the context has
 already seen this message based on its flags configuration, the message will
-not be logged.</doc>
+not be logged.
+
+@level &gt;= %GST_LEVEL_MEMDUMP is not supported.</doc>
       <source-position filename="../subprojects/gstreamer/gst/gstinfo.h"/>
       <return-value transfer-ownership="none">
         <type name="none" c:type="void"/>

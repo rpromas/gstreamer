@@ -68,7 +68,7 @@ gst-validate-1.0 --set-test-file /path/to/fakesrc.simple.validatetest
 The following is an example of the `qtdemux_change_edit_list.validatetest` file using validateflow.
 
 ``` ini
-set-globals, media_dir="$(test_dir)/../../../medias/"
+set-globals, media_dir="$(test_dir)/../../../media/"
 meta,
     seek=false,
     handles-states=false,
@@ -156,6 +156,10 @@ several overrides and listening to different pads with different settings.
 * `logged-upstream-event-types`: Default: `NULL`. List of upstream event type names to record,
   for backward compatibility reasons, upstream events are not logged by default,
   and you must specify the ones you want to be logged.
+* `logged-unregistered-sei-uuids`: Default: `NULL`. List of UUIDs (in standard
+  `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx` format) of unregistered SEI user data
+  metas to record. Only `GstVideoSEIUserDataUnregisteredMeta` with matching UUIDs
+  will be logged. If not specified, no SEI metas are logged.
 * `expectations-dir`: Path to the directory where the expectations will be
    written if they don't exist, relative to the current working directory. By
    default the current working directory is used, but this setting is usually

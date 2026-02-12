@@ -1,5 +1,5 @@
 project('gstreamer', 'c',
-  version : '1.27.2.1',
+  version : '1.29.0.1',
   meson_version : '>= 1.4',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
@@ -569,7 +569,9 @@ glib_req = '>= 2.64.0'
 
 # Find dependencies
 glib_dep = dependency('glib-2.0', version: glib_req,
-    default_options: {'sysprof': 'disabled'})
+    # glib's (new) introspection support is disabled till the cyclic dependency
+    # is fixed: https://gitlab.gnome.org/GNOME/glib/-/issues/3801
+    default_options: {'sysprof': 'disabled', 'introspection': 'disabled'})
 gobject_dep = dependency('gobject-2.0')
 gmodule_dep = dependency('gmodule-no-export-2.0')
 if host_system == 'windows'
@@ -606,7 +608,8 @@ endif
 atomic_dep = cc.find_library('atomic', required: false)
 platform_deps += atomic_dep
 
-gir = find_program('g-ir-scanner', required : get_option('introspection'))
+gir = find_program('g-ir-scanner', required : get_option('introspection'),
+    default_options: {'cairo': 'disabled'})
 gnome = import('gnome')
 
 build_gir = gir.found() and (not meson.is_cross_build() or get_option('introspection').enabled())

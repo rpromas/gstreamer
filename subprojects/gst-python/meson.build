@@ -1,5 +1,5 @@
 project('gst-python', 'c',
-  version : '1.27.2.1',
+  version : '1.29.0.1',
   meson_version : '>= 1.4',
   default_options : [ 'warning_level=1',
                       'buildtype=debugoptimized' ])
@@ -85,17 +85,21 @@ else
   endif
 endif
 pylib_fname = ''
-foreach loc: pylib_locs
-  foreach fname: pylib_fnames
-    fpath = loc / fname
-    debug(f'Looking for Python library at: @fpath@')
-    if fsmod.exists(fpath)
-      pylib_fname = fname
-      message(f'PY_LIB_FNAME = @fname@ (@loc@)')
-      break
-    endif
+if meson.is_cross_build()
+  pylib_fname = pylib_locs[0] / pylib_fnames[0]
+else
+  foreach loc: pylib_locs
+    foreach fname: pylib_fnames
+      fpath = loc / fname
+      debug(f'Looking for Python library at: @fpath@')
+      if fsmod.exists(fpath)
+        pylib_fname = fname
+        message(f'PY_LIB_FNAME = @fname@ (@loc@)')
+        break
+      endif
+    endforeach
   endforeach
-endforeach
+endif
 if pylib_fname == ''
   message('Could not find python library to load, will try loading at runtime')
 endif
@@ -128,7 +132,8 @@ configinc = include_directories('.')
 meson.add_dist_script('scripts/gen-changelog.py', meson.project_name(), '1.26.0', meson.project_version())
 
 pkgconfig = import('pkgconfig')
-plugins_install_dir = join_paths(libdir, 'gstreamer-1.0')
+plugins_install_dir = join_paths(get_option('libdir'), 'gstreamer-1.0')
+python_plugin_install_dir = join_paths(plugins_install_dir, 'python')
 plugins_pkgconfig_install_dir = join_paths(plugins_install_dir, 'pkgconfig')
 if get_option('default_library') == 'shared'
   # If we don't build static plugins there is no need to generate pc files
@@ -139,6 +144,7 @@ subdir('gi')
 if not get_option('plugin').disabled()
   if get_option('default_library') != 'static'
     subdir('plugin')
+    subdir('plugins')
   else
     warning('Python plugin not supported with `static` builds yet.')
   endif

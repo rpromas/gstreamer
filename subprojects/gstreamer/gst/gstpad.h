@@ -680,7 +680,7 @@ typedef GstPadProbeReturn   (*GstPadProbeCallback)   (GstPad *pad, GstPadProbeIn
 /**
  * GstPadStickyEventsForeachFunction:
  * @pad: the #GstPad.
- * @event: (nullable): a sticky #GstEvent.
+ * @event: (inout) (nullable): a sticky #GstEvent.
  * @user_data: the #gpointer to optional user data.
  *
  * Callback used by gst_pad_sticky_events_foreach().
@@ -1344,13 +1344,13 @@ GType			gst_pad_get_type			(void);
 /* creating pads */
 
 GST_API
-GstPad*			gst_pad_new				(const gchar *name, GstPadDirection direction);
+GstPad*			gst_pad_new				(const gchar *name, GstPadDirection direction) G_GNUC_WARN_UNUSED_RESULT;
 
 GST_API
-GstPad*			gst_pad_new_from_template		(GstPadTemplate *templ, const gchar *name);
+GstPad*			gst_pad_new_from_template		(GstPadTemplate *templ, const gchar *name) G_GNUC_WARN_UNUSED_RESULT;
 
 GST_API
-GstPad*			gst_pad_new_from_static_template	(GstStaticPadTemplate *templ, const gchar *name);
+GstPad*			gst_pad_new_from_static_template	(GstStaticPadTemplate *templ, const gchar *name) G_GNUC_WARN_UNUSED_RESULT;
 
 
 /**

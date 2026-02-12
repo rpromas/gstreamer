@@ -1,5 +1,5 @@
 project('GStreamer manuals and tutorials', 'c',
-  version: '1.27.2.1',
+  version: '1.29.0.1',
   meson_version : '>= 1.4')
 
 hotdoc_p = find_program('hotdoc')
@@ -66,7 +66,7 @@ libs_configs = []
 if built_subprojects != ''
     foreach project_name: built_subprojects.split(',')
         sub = subproject(project_name)
-        if sub.get_variable('build_hotdoc', false)
+        if sub.get_variable('build_hotdoc')
             message('Building @0@ documentation'.format(project_name))
 
             foreach lib: sub.get_variable('libs_doc', [])

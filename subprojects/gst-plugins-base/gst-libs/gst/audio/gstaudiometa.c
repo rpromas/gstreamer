@@ -123,7 +123,7 @@ gst_buffer_get_audio_downmix_meta_for_channels (GstBuffer * buffer,
  * @to_position: (array length=to_channels): the channel positions of
  *   the destination
  * @to_channels: The number of channels of the destination
- * @matrix: (array) (element-type float*): The matrix coefficients.
+ * @matrix: (array) (element-type gpointer): The matrix coefficients.
  *
  * Attaches #GstAudioDownmixMeta metadata to @buffer with the given parameters.
  *
@@ -367,7 +367,7 @@ gst_audio_meta_serialize (const GstMeta * meta, GstByteArrayInterface * data,
     return FALSE;
 
   GstByteWriter bw;
-  gboolean success = TRUE;
+  gboolean success GST_UNUSED_ASSERT = TRUE;
   gst_byte_writer_init_with_data (&bw, ptr, size, FALSE);
   success &= gst_byte_writer_put_int32_le (&bw, ameta->info.finfo->format);
   success &= gst_byte_writer_put_int32_le (&bw, ameta->info.flags);

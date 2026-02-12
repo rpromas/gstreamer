@@ -36,8 +36,6 @@
  *
  * A #GstCaps can be constructed with the following code fragment:
  *
- * {{ C+JS_FALLBACK.md }}
- *
  * ``` C
  *   GstCaps *caps = gst_caps_new_simple ("video/x-raw",
  *      "format", G_TYPE_STRING, "I420",
@@ -47,17 +45,6 @@
  *      "height", G_TYPE_INT, 240,
  *      NULL);
  * ```
- *
- * {{ END_LANG.md }}
- *
- * {{ PY.md }}
- *
- * ``` python
- *  caps = Gst.Caps(Gst.Structure("video/x-raw", format="I420", framerate=Gst.Fraction(25, 1),
- *      pixel_aspect_ratio=Gst.Fraction(1, 1), width=320, height=240))
- * ```
- *
- * {{ END_LANG.md }}
  *
  * A #GstCaps is fixed when it has no fields with ranges or lists. Use
  * gst_caps_is_fixed() to test for fixed caps. Fixed caps can be used in a
@@ -821,17 +808,15 @@ gst_caps_append_structure (GstCaps * caps, GstStructure * structure)
 {
   g_return_if_fail (GST_IS_CAPS (caps));
   g_return_if_fail (IS_WRITABLE (caps));
+  g_return_if_fail (GST_IS_STRUCTURE (structure));
 
   if (CAPS_IS_ANY (caps)) {
     /* ANY caps will stay as ANY caps */
-    if (structure)
-      gst_structure_free (structure);
+    gst_structure_free (structure);
     return;
   }
 
-  if (G_LIKELY (structure)) {
-    gst_caps_append_structure_unchecked (caps, structure, NULL);
-  }
+  gst_caps_append_structure_unchecked (caps, structure, NULL);
 }
 
 /**
@@ -851,19 +836,17 @@ gst_caps_append_structure_full (GstCaps * caps, GstStructure * structure,
 {
   g_return_if_fail (GST_IS_CAPS (caps));
   g_return_if_fail (IS_WRITABLE (caps));
+  g_return_if_fail (GST_IS_STRUCTURE (structure));
 
   if (CAPS_IS_ANY (caps)) {
     /* ANY caps will stay as ANY caps */
-    if (structure)
-      gst_structure_free (structure);
+    gst_structure_free (structure);
     if (features)
       gst_caps_features_free (features);
     return;
   }
 
-  if (G_LIKELY (structure)) {
-    gst_caps_append_structure_unchecked (caps, structure, features);
-  }
+  gst_caps_append_structure_unchecked (caps, structure, features);
 }
 
 /**
@@ -3078,7 +3061,8 @@ gst_caps_filter_and_map_in_place (GstCaps * caps, GstCapsFilterMapFunc func,
 GstCaps *
 gst_caps_copy (const GstCaps * caps)
 {
-  return GST_CAPS_CAST (gst_mini_object_copy (GST_MINI_OBJECT_CAST (caps)));
+  return
+      GST_CAPS_CAST (gst_mini_object_copy (GST_MINI_OBJECT_CONST_CAST (caps)));
 }
 
 /**

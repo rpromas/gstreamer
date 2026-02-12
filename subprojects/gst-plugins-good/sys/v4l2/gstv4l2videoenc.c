@@ -608,6 +608,9 @@ gst_v4l2_video_enc_negotiate (GstVideoEncoder * encoder)
   if (codec->level_cid)
     gst_structure_set (s, "level", G_TYPE_STRING, ctx.level, NULL);
 
+  gst_video_codec_state_unref (state);
+  state = NULL;
+
 done:
   if (!GST_VIDEO_ENCODER_CLASS (parent_class)->negotiate (encoder))
     return FALSE;
@@ -871,8 +874,8 @@ activate_failed:
     GST_ELEMENT_ERROR (self, RESOURCE, SETTINGS,
         (_("Failed to allocate required memory.")),
         ("Buffer pool activation failed"));
-    return GST_FLOW_ERROR;
-
+    ret = GST_FLOW_ERROR;
+    goto drop;
   }
 flushing:
   {

@@ -193,6 +193,9 @@ gst_v4l2_object_v4l2fourcc_to_video_format (guint32 fourcc)
     case V4L2_PIX_FMT_UYVY:
       format = GST_VIDEO_FORMAT_UYVY;
       break;
+    case V4L2_PIX_FMT_VYUY:
+      format = GST_VIDEO_FORMAT_VYUY;
+      break;
     case V4L2_PIX_FMT_YUV411P:
       format = GST_VIDEO_FORMAT_Y41B;
       break;
@@ -1005,6 +1008,7 @@ gst_uvc_sink_change_state (GstElement * element, GstStateChange transition)
 
   switch (transition) {
     case GST_STATE_CHANGE_PAUSED_TO_READY:
+      gst_uvc_sink_to_fakesink (self);
       break;
     case GST_STATE_CHANGE_NULL_TO_READY:
       if (!gst_uvc_sink_watch (self))

@@ -83,6 +83,7 @@ enum
   PROP_IS_CLIENT,
   PROP_CONNECTION_STATE,
   PROP_RTP_SYNC,
+  PROP_DTLS_VERSION,
   NUM_PROPERTIES
 };
 
@@ -151,11 +152,24 @@ gst_dtls_srtp_enc_class_init (GstDtlsSrtpEncClass * klass)
       GST_DTLS_TYPE_CONNECTION_STATE,
       GST_DTLS_CONNECTION_STATE_NEW, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
-
   properties[PROP_RTP_SYNC] =
       g_param_spec_boolean ("rtp-sync", "Synchronize RTP",
       "Synchronize RTP to the pipeline clock before merging with RTCP",
       DEFAULT_RTP_SYNC, G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS);
+
+  /**
+   * GstDtlsSrtpEnc:dtls-version:
+   *
+   * The negotiated DTLS protocol version, represented as 2 bytes. Each
+   * component of the version is translated to a byte using `hex(255 -
+   * component)`. For instance if the version is 1.3, the resulting value will
+   * be `0xFEFC`.
+   *
+   * Since: 1.30
+   */
+  properties[PROP_DTLS_VERSION] =
+      g_param_spec_uint ("dtls-version", "DTLS version", "Negotiated version",
+      0, G_MAXUINT16, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, NUM_PROPERTIES, properties);
 
@@ -170,7 +184,7 @@ gst_dtls_srtp_enc_class_init (GstDtlsSrtpEncClass * klass)
       "DTLS-SRTP Encoder",
       "Encoder/Network/DTLS/SRTP",
       "Encodes SRTP packets with a key received from DTLS",
-      "Patrik Oldsberg patrik.oldsberg@ericsson.com");
+      "Patrik Oldsberg <patrik.oldsberg@ericsson.com>");
 }
 
 static void
@@ -187,7 +201,7 @@ gst_dtls_srtp_enc_init (GstDtlsSrtpEnc * self)
 {
   GstElementClass *klass = GST_ELEMENT_GET_CLASS (GST_ELEMENT (self));
   static GEnumClass *cipher_enum_class, *auth_enum_class;
-  gboolean ret;
+  gboolean ret GST_UNUSED_CHECKS;
 
 /*
                  +--------------------+    +--------------+     +-----------------+
@@ -355,6 +369,14 @@ gst_dtls_srtp_enc_get_property (GObject * object,
     case PROP_RTP_SYNC:
       g_value_set_boolean (value, self->rtp_sync);
       break;
+    case PROP_DTLS_VERSION:
+      if (self->bin.dtls_element) {
+        g_object_get_property (G_OBJECT (self->bin.dtls_element), "version",
+            value);
+      } else {
+        GST_WARNING_OBJECT (self, "tried to get version after disabling DTLS");
+      }
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (self, prop_id, pspec);
   }
@@ -504,7 +526,7 @@ gst_dtls_srtp_enc_remove_dtls_element (GstDtlsSrtpBin * bin)
 {
   GstDtlsSrtpEnc *self = GST_DTLS_SRTP_ENC (bin);
   GstPad *dtls_sink_pad, *peer_pad;
-  gulong id;
+  gulong id GST_UNUSED_CHECKS;
   guint rtp_cipher = 1, rtcp_cipher = 1, rtp_auth = 1, rtcp_auth = 1;
 
   if (!bin->dtls_element) {

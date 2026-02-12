@@ -277,73 +277,8 @@ typedef enum {
  * @offset_end: the last offset contained in this buffer. It has the same
  *     format as @offset.
  *
- * {{ C+JS_FALLBACK.md }}
- *
  * The structure of a #GstBuffer. Use the associated macros to access the public
  * variables.
- *
- * {{ END_LANG.md }}
- *
- * {{ PY.md }}
- *
- * ### Properties
- *
- * #### Gst.Buffer.pts
- *
- * ``` python
- * @property
- * def pts(self) -> int:
- * ```
- *
- * Presentation timestamp as a property.
- *
- * **Since**: 1.28
- *
- * #### Gst.Buffer.dts
- *
- * ``` python
- * @property
- * def dts(self) -> int:
- * ```
- *
- * Decoding timestamp as a property.
- *
- * **Since**: 1.28
- *
- * #### Gst.Buffer.duration
- *
- * ``` python
- * @property
- * def duration(self) -> int:
- * ```
- *
- * Buffer duration as a property.
- *
- * **Since**: 1.28
- *
- * #### Gst.Buffer.offset
- *
- * ``` python
- * @property
- * def offset(self) -> int:
- * ```
- *
- * Buffer offset as a property.
- *
- * **Since**: 1.28
- *
- * #### Gst.Buffer.offset_end
- *
- * ``` python
- * @property
- * def offset_end(self) -> int:
- * ```
- *
- * Buffer offset_end as a property.
- *
- * **Since**: 1.28
- *
- * {{ END_LANG.md }}
  */
 struct _GstBuffer {
   GstMiniObject          mini_object;
@@ -670,7 +605,7 @@ GstBuffer*      gst_buffer_append               (GstBuffer *buf1, GstBuffer *buf
 /**
  * GstBufferForeachMetaFunc:
  * @buffer: a #GstBuffer
- * @meta: (out) (nullable): a pointer to a #GstMeta
+ * @meta: (inout) (nullable): a pointer to a #GstMeta
  * @user_data: user data passed to gst_buffer_foreach_meta()
  *
  * A function that will be called from gst_buffer_foreach_meta(). The @meta
@@ -899,26 +834,15 @@ G_DEFINE_AUTOPTR_CLEANUP_FUNC(GstBufferPool, gst_object_unref)
  * }
  * ```
  *
- * #GstMapInfo cannot be used with g_auto() because it is ambiguous whether it
- * needs to be unmapped using gst_buffer_unmap() or gst_memory_unmap().
- *
  * See also #GstMemoryMapInfo.
  *
  * Since: 1.22
+ *
+ * Deprecated: 1.28: Use #GstMapInfo instead.
  */
-typedef GstMapInfo GstBufferMapInfo;
+typedef GstMapInfo GstBufferMapInfo GST_DEPRECATED_TYPE_FOR(GstMapInfo);
 
-static inline void _gst_buffer_map_info_clear(GstBufferMapInfo *info)
-{
-  /* we need to check for NULL, it is possible that we tried to map a buffer
-   * without memory and we should be able to unmap that fine */
-  if (G_LIKELY (info->memory)) {
-    gst_memory_unmap (info->memory, info);
-    gst_memory_unref (info->memory);
-  }
-}
-
-G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC(GstBufferMapInfo, _gst_buffer_map_info_clear)
+G_DEFINE_AUTO_CLEANUP_CLEAR_FUNC(GstBufferMapInfo, gst_map_info_clear)
 
 G_END_DECLS
 

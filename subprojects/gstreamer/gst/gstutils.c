@@ -2202,6 +2202,9 @@ gst_element_link_pads_filtered (GstElement * src, const gchar * srcpadname,
       GST_CAT_ERROR (GST_CAT_ELEMENT_PADS, "Could not make a capsfilter");
       return FALSE;
     }
+    /* The bin could be in the middle of a state change, which would race
+     * against our own change to NULL in the failed case. */
+    gst_element_set_locked_state (capsfilter, TRUE);
 
     parent = gst_object_get_parent (GST_OBJECT (src));
     g_return_val_if_fail (GST_IS_BIN (parent), FALSE);
@@ -2226,6 +2229,8 @@ gst_element_link_pads_filtered (GstElement * src, const gchar * srcpadname,
     lr1 = gst_element_link_pads (src, srcpadname, capsfilter, "sink");
     lr2 = gst_element_link_pads (capsfilter, "src", dest, destpadname);
     if (lr1 && lr2) {
+      gst_element_set_locked_state (capsfilter, FALSE);
+      gst_element_sync_state_with_parent (capsfilter);
       return TRUE;
     } else {
       if (!lr1) {
@@ -4685,7 +4690,7 @@ gst_util_floor_log2 (guint32 v)
 /**
  * gst_calculate_linear_regression: (skip)
  * @xy: (array): Pairs of (x,y) values
- * @temp: Temporary scratch space used by the function
+ * @temp: (array) (nullable): Temporary scratch space used by the function
  * @n: number of (x,y) pairs
  * @m_num: (out): numerator of calculated slope
  * @m_denom: (out): denominator of calculated slope
@@ -5013,6 +5018,8 @@ gst_util_filename_compare (const gchar * a, const gchar * b)
   b_utf8 = g_filename_to_utf8 (b, -1, NULL, NULL, NULL);
 
   if (a_utf8 == NULL || b_utf8 == NULL) {
+    g_free (a_utf8);
+    g_free (b_utf8);
     return strcmp (a, b);
   }
 

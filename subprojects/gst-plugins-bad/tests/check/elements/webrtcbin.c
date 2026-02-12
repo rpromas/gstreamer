@@ -83,6 +83,7 @@ struct test_webrtc
   gulong error_signal_handler_id;
   gpointer user_data;
   GDestroyNotify data_notify;
+  GCond add_candidate_result_cond;
 /* *INDENT-OFF* */
   void      (*on_negotiation_needed)    (struct test_webrtc * t,
                                          GstElement * element,
@@ -233,7 +234,7 @@ _on_answer_received (GstPromise * promise, gpointer user_data)
 
   g_mutex_lock (&t->lock);
 
-  g_assert (t->answer_desc == NULL);
+  g_assert_null (t->answer_desc);
   t->answer_desc = answer;
 
   if (t->on_answer_created) {
@@ -316,7 +317,7 @@ _on_offer_received (GstPromise * promise, gpointer user_data)
 
   g_mutex_lock (&t->lock);
 
-  g_assert (t->offer_desc == NULL);
+  g_assert_null (t->offer_desc);
   t->offer_desc = offer;
 
   if (t->on_offer_created) {
@@ -651,6 +652,7 @@ test_webrtc_new (void)
 
   g_mutex_init (&ret->lock);
   g_cond_init (&ret->cond);
+  g_cond_init (&ret->add_candidate_result_cond);
 
   ret->states = g_array_new (FALSE, TRUE, sizeof (TestState));
 
@@ -793,6 +795,7 @@ test_webrtc_free (struct test_webrtc *t)
 
   g_mutex_clear (&t->lock);
   g_cond_clear (&t->cond);
+  g_cond_clear (&t->add_candidate_result_cond);
 
   g_array_free (t->states, TRUE);
   t->states = NULL;
@@ -1800,11 +1803,35 @@ validate_candidate_stats (const GstStructure * s, const GstStructure * stats)
 }
 
 static void
-validate_transport_stats (const GstStructure * s, const GstStructure * stats)
+validate_certificate_stats (const GstStructure * s, const GstStructure * stats)
+{
+  gchar *pem;
+  gchar *fingerprint;
+  gchar *fingerprint_algo;
+
+  fail_unless (gst_structure_get (s, "fingerprint", G_TYPE_STRING, &fingerprint,
+          NULL));
+  fail_unless (gst_structure_get (s, "fingerprint-algorithm", G_TYPE_STRING,
+          &fingerprint_algo, NULL));
+  fail_unless (gst_structure_get (s, "base64-certificate", G_TYPE_STRING, &pem,
+          NULL));
+
+  fail_unless_equals_string (fingerprint_algo, "sha-256");
+
+  g_free (pem);
+  g_free (fingerprint);
+  g_free (fingerprint_algo);
+}
+
+static void
+validate_transport_stats (const GstStructure * s,
+    const GstStructure * stats, const gchar * expected_tls_version)
 {
   gchar *selected_candidate_pair_id;
   GstWebRTCDTLSTransportState state;
   GstWebRTCDTLSRole dtls_role;
+  gchar *dtls_cipher;
+  gchar *srtp_cipher;
 
   fail_unless (gst_structure_get (s, "selected-candidate-pair-id",
           G_TYPE_STRING, &selected_candidate_pair_id, NULL));
@@ -1812,7 +1839,25 @@ validate_transport_stats (const GstStructure * s, const GstStructure * stats)
           GST_TYPE_WEBRTC_DTLS_TRANSPORT_STATE, &state, NULL));
   fail_unless (gst_structure_get (s, "dtls-role", GST_TYPE_WEBRTC_DTLS_ROLE,
           &dtls_role, NULL));
+  fail_unless (gst_structure_get (s, "dtls-cipher", G_TYPE_STRING,
+          &dtls_cipher, NULL));
+  fail_unless (gst_structure_get (s, "srtp-cipher", G_TYPE_STRING,
+          &srtp_cipher, NULL));
+  fail_unless_equals_string (dtls_cipher,
+      "TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256");
+  fail_unless_equals_string (srtp_cipher, "SRTP_AES128_CM_HMAC_SHA1_80");
 
+  if (expected_tls_version) {
+    gchar *tls_version;
+    fail_unless (gst_structure_get (s, "tls-version", G_TYPE_STRING,
+            &tls_version, NULL));
+
+    fail_unless_equals_string (tls_version, expected_tls_version);
+    g_free (tls_version);
+  }
+
+  g_free (dtls_cipher);
+  g_free (srtp_cipher);
   g_free (selected_candidate_pair_id);
 }
 
@@ -1839,6 +1884,7 @@ struct stats_check_state
   gboolean saw_remote_outbound_rtp;
   gboolean saw_inbound_rtp;
   gboolean saw_remote_inbound_rtp;
+  const gchar *expected_tls_version;
 };
 
 static gboolean
@@ -1879,13 +1925,14 @@ validate_stats_foreach (const GstIdStr * fieldname, const GValue * value,
   } else if (type == GST_WEBRTC_STATS_DATA_CHANNEL) {
   } else if (type == GST_WEBRTC_STATS_STREAM) {
   } else if (type == GST_WEBRTC_STATS_TRANSPORT) {
-    validate_transport_stats (s, stats);
+    validate_transport_stats (s, stats, state->expected_tls_version);
   } else if (type == GST_WEBRTC_STATS_CANDIDATE_PAIR) {
   } else if (type == GST_WEBRTC_STATS_LOCAL_CANDIDATE) {
     validate_candidate_stats (s, stats);
   } else if (type == GST_WEBRTC_STATS_REMOTE_CANDIDATE) {
     validate_candidate_stats (s, stats);
   } else if (type == GST_WEBRTC_STATS_CERTIFICATE) {
+    validate_certificate_stats (s, stats);
   } else {
     g_assert_not_reached ();
   }
@@ -2043,6 +2090,10 @@ GST_START_TEST (test_stats_with_two_streams)
   }
 
   struct stats_check_state state = {.t = t,.n_streams = 2, 0 };
+
+  /* Expecting DTLS version 1.2 in transport stats, because the transport should
+     be connected by now. */
+  state.expected_tls_version = "FEFD";
 
   while (TRUE) {
     g_usleep (100 * 1000);
@@ -6148,7 +6199,7 @@ on_sdp_media_rid (struct test_webrtc *t, GstElement * element,
         /* take up to either space or nul-terminator */
         while (p && *p && *p != ' ')
           p++;
-        g_assert (v != p);
+        g_assert_true (v != p);
         v = g_strndup (v, p - v);
         GST_INFO ("rid = %s", v);
 
@@ -7081,6 +7132,110 @@ a=setup:actpass\r\n";
   test_webrtc_free (t);
 } GST_END_TEST;
 
+static void
+_add_ice_candidate_promise_changed (GstPromise * promise, gpointer user_data)
+{
+  struct test_webrtc *t = user_data;
+  const GstStructure *reply;
+  GError *error = NULL;
+
+  reply = gst_promise_get_reply (promise);
+  fail_unless (gst_structure_get (reply, "error", G_TYPE_ERROR, &error, NULL));
+  g_clear_error (&error);
+
+  g_mutex_lock (&t->lock);
+  g_cond_broadcast (&t->add_candidate_result_cond);
+  gst_promise_unref (promise);
+  g_mutex_unlock (&t->lock);
+}
+
+GST_START_TEST (test_mdns_resolve_error)
+{
+  struct test_webrtc *t = test_webrtc_new ();
+  GstPromise *promise;
+  GstPromiseResult res;
+  const GstStructure *s;
+  GstWebRTCSessionDescription *desc;
+  GstHarness *h1;
+
+  t->on_negotiation_needed = NULL;
+  t->on_ice_candidate = NULL;
+  t->on_pad_added = _pad_added_fakesink;
+
+  h1 = gst_harness_new_with_element (t->webrtc1, "sink_0", NULL);
+  add_audio_test_src_harness (h1, 0xDEADBEEF);
+  t->harnesses = g_list_prepend (t->harnesses, h1);
+
+  fail_if (gst_element_set_state (t->webrtc1, GST_STATE_READY) ==
+      GST_STATE_CHANGE_FAILURE);
+  fail_if (gst_element_set_state (t->webrtc2, GST_STATE_READY) ==
+      GST_STATE_CHANGE_FAILURE);
+
+  promise = gst_promise_new ();
+  g_signal_emit_by_name (t->webrtc1, "create-offer", NULL, promise);
+  res = gst_promise_wait (promise);
+  fail_unless (res == GST_PROMISE_RESULT_REPLIED);
+  s = gst_promise_get_reply (promise);
+  fail_unless (s != NULL);
+  fail_if (gst_structure_has_field (s, "error"));
+  gst_structure_get (s, "offer", GST_TYPE_WEBRTC_SESSION_DESCRIPTION, &desc,
+      NULL);
+  fail_unless (desc != NULL);
+  gst_promise_unref (promise);
+
+  promise = gst_promise_new ();
+  g_signal_emit_by_name (t->webrtc1, "set-local-description", desc, promise);
+  res = gst_promise_wait (promise);
+  fail_unless_equals_int (res, GST_PROMISE_RESULT_REPLIED);
+  s = gst_promise_get_reply (promise);
+  fail_if (s && gst_structure_has_field (s, "error"));
+  gst_promise_unref (promise);
+
+  promise = gst_promise_new ();
+  g_signal_emit_by_name (t->webrtc2, "set-remote-description", desc, promise);
+  res = gst_promise_wait (promise);
+  fail_unless_equals_int (res, GST_PROMISE_RESULT_REPLIED);
+  s = gst_promise_get_reply (promise);
+  fail_if (s && gst_structure_has_field (s, "error"));
+  gst_promise_unref (promise);
+
+  gst_webrtc_session_description_free (desc);
+
+  promise = gst_promise_new ();
+  g_signal_emit_by_name (t->webrtc2, "create-answer", NULL, promise);
+  res = gst_promise_wait (promise);
+  fail_unless_equals_int (res, GST_PROMISE_RESULT_REPLIED);
+  s = gst_promise_get_reply (promise);
+  fail_unless (s != NULL);
+  fail_if (gst_structure_has_field (s, "error"));
+  gst_structure_get (s, "answer", GST_TYPE_WEBRTC_SESSION_DESCRIPTION, &desc,
+      NULL);
+  fail_unless (desc != NULL);
+  gst_promise_unref (promise);
+
+  promise = gst_promise_new ();
+  g_signal_emit_by_name (t->webrtc2, "set-local-description", desc, promise);
+  res = gst_promise_wait (promise);
+  fail_unless_equals_int (res, GST_PROMISE_RESULT_REPLIED);
+  s = gst_promise_get_reply (promise);
+  fail_if (s && gst_structure_has_field (s, "error"));
+  gst_promise_unref (promise);
+  gst_webrtc_session_description_free (desc);
+
+  g_signal_emit_by_name (t->webrtc2, "add-ice-candidate-full", 0,
+      "a=candidate:0 1 UDP 2122252543 invalid.local 53970 typ host",
+      gst_promise_new_with_change_func (_add_ice_candidate_promise_changed, t,
+          NULL));
+
+  g_mutex_lock (&t->lock);
+  g_cond_wait (&t->add_candidate_result_cond, &t->lock);
+  g_mutex_unlock (&t->lock);
+
+  test_webrtc_free (t);
+}
+
+GST_END_TEST;
+
 static Suite *
 webrtcbin_suite (void)
 {
@@ -7189,6 +7344,7 @@ webrtcbin_suite (void)
     tcase_add_test (tc, test_video_rtx_no_duplicate_payloads);
     tcase_add_test (tc, test_bundle_with_different_ice_credentials);
     tcase_add_test (tc, test_invalid_ice_attrs);
+    tcase_add_test (tc, test_mdns_resolve_error);
   } else {
     GST_WARNING ("Some required elements were not found. "
         "All media tests are disabled. nicesrc %p, nicesink %p, "

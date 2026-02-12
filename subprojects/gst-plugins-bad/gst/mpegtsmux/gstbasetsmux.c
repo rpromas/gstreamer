@@ -1709,15 +1709,6 @@ gst_base_ts_mux_aggregate_buffer (GstBaseTsMux * mux,
     header = GST_BUFFER_FLAG_IS_SET (buf, GST_BUFFER_FLAG_HEADER);
   }
 
-  if (best->stream->internal_stream_type == TSMUX_ST_PS_KLV &&
-      gst_buffer_get_size (buf) > (G_MAXUINT16 - 3)) {
-    GST_WARNING_OBJECT (mux, "KLV meta unit too big, splitting not supported");
-
-    gst_buffer_unref (buf);
-    g_mutex_unlock (&mux->lock);
-    return GST_FLOW_OK;
-  }
-
   GST_DEBUG_OBJECT (mux, "delta: %d", delta);
 
   if (gst_buffer_get_size (buf) > 0) {
@@ -2915,15 +2906,15 @@ gst_base_ts_mux_set_property (GObject * object, guint prop_id,
       break;
     case PROP_PMT_INTERVAL:
       mux->pmt_interval = g_value_get_uint (value);
+      g_mutex_lock (&mux->lock);
       GST_OBJECT_LOCK (mux);
       for (l = GST_ELEMENT_CAST (mux)->sinkpads; l; l = l->next) {
         GstBaseTsMuxPad *ts_pad = GST_BASE_TS_MUX_PAD (l->data);
 
-        g_mutex_lock (&mux->lock);
         tsmux_set_pmt_interval (ts_pad->prog, mux->pmt_interval);
-        g_mutex_unlock (&mux->lock);
       }
       GST_OBJECT_UNLOCK (mux);
+      g_mutex_unlock (&mux->lock);
       break;
     case PROP_ALIGNMENT:
       mux->alignment = g_value_get_int (value);

@@ -88023,7 +88023,7 @@
                 "rank": "none"
             },
             "avvideocompare": {
-                "author": "U. Artie Eoff <ullysses.a.eoff@intel.com",
+                "author": "U. Artie Eoff <ullysses.a.eoff@intel.com>",
                 "description": "Compare Video",
                 "hierarchy": [
                     "GstFFMpegVidCmp",

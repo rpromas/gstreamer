@@ -58,10 +58,11 @@
 
 #include <gst/codecparsers/gsth264bitwriter.h>
 #include <gst/codecparsers/gsth264parser.h>
-#include <gst/vulkan/gstvkencoder-private.h>
 
-#include "gstvulkanelements.h"
 #include "base/gsth264encoder.h"
+#include "gst/vulkan/gstvkencoder-private.h"
+#include "gstvkvideocaps.h"
+#include "gstvulkanelements.h"
 
 typedef struct _GstVulkanH264Encoder GstVulkanH264Encoder;
 typedef struct _GstVulkanH264EncoderClass GstVulkanH264EncoderClass;
@@ -89,7 +90,6 @@ struct _GstVulkanH264Encoder
   GstH264Encoder parent;
 
   GstVideoCodecState *in_state;
-  GstVideoCodecState *out_state;
 
   gint coded_width;
   gint coded_height;
@@ -179,6 +179,8 @@ struct CData
 {
   gchar *description;
   gint device_index;
+  GstCaps *codec;
+  GstCaps *raw;
 };
 
 #define GST_VULKAN_H264_ENCODER(obj) ((GstVulkanH264Encoder *)obj)
@@ -187,17 +189,6 @@ struct CData
                                GstVulkanH264EncoderClass))
 #define GST_VULKAN_H264_ENCODER_CLASS(klass)    \
     ((GstVulkanH264EncoderClass *)klass)
-
-static GstStaticPadTemplate gst_vulkan_h264_encoder_sink_template =
-GST_STATIC_PAD_TEMPLATE ("sink", GST_PAD_SINK, GST_PAD_ALWAYS,
-    GST_STATIC_CAPS (GST_VIDEO_CAPS_MAKE_WITH_FEATURES
-        (GST_CAPS_FEATURE_MEMORY_VULKAN_IMAGE, "NV12")));
-
-static GstStaticPadTemplate gst_vulkan_h264_encoder_src_template =
-GST_STATIC_PAD_TEMPLATE ("src", GST_PAD_SRC, GST_PAD_ALWAYS,
-    GST_STATIC_CAPS ("video/x-h264, "
-        "profile = { (string) main, (string) high, (string) constrained-baseline }, "
-        "stream-format = (string) byte-stream, alignment = (string) au"));
 
 static GstElementClass *parent_class = NULL;
 
@@ -285,14 +276,14 @@ _GET_FRAME (GstH264EncoderFrame * frame)
 }
 
 static StdVideoH264SliceType
-gst_vulkan_h264_slice_type (GstH264SliceType type)
+gst_vulkan_h264_slice_type (GstH26XGOPType type)
 {
   switch (type) {
-    case GST_H264_I_SLICE:
+    case GST_H26X_GOP_TYPE_I:
       return STD_VIDEO_H264_SLICE_TYPE_I;
-    case GST_H264_P_SLICE:
+    case GST_H26X_GOP_TYPE_P:
       return STD_VIDEO_H264_SLICE_TYPE_P;
-    case GST_H264_B_SLICE:
+    case GST_H26X_GOP_TYPE_B:
       return STD_VIDEO_H264_SLICE_TYPE_B;
     default:
       GST_WARNING ("Unsupported picture type '%d'", type);
@@ -380,7 +371,7 @@ gst_vulkan_h264_level_idc (int level_idc)
   return STD_VIDEO_H264_LEVEL_IDC_INVALID;
 }
 
-static GstH264Level
+static gint
 gst_h264_level_idc_from_vk (StdVideoH264LevelIdc vk_level_idc)
 {
   for (guint i = 0; i < G_N_ELEMENTS (H264LevelMap); i++) {
@@ -693,6 +684,7 @@ gst_vulkan_h264_encoder_new_sequence (GstH264Encoder * encoder,
   GstVulkanVideoCapabilities vk_caps;
   VkVideoEncodeH264CapabilitiesKHR *vk_h264_caps;
   GstVulkanEncoderQualityProperties quality_props;
+  StdVideoH264LevelIdc vk_max_level;
 
   if (!self->encoder) {
     GST_ELEMENT_ERROR (self, RESOURCE, NOT_FOUND,
@@ -894,6 +886,14 @@ gst_vulkan_h264_encoder_new_sequence (GstH264Encoder * encoder,
     return GST_FLOW_NOT_NEGOTIATED;
   }
 
+  /* gallium drivers always reply 1.0 level idc  */
+  vk_max_level = vk_caps.encoder.codec.h264.maxLevelIdc;
+  if (vk_max_level > STD_VIDEO_H264_LEVEL_IDC_1_0 && *level > 0) {
+    gint max_level = gst_h264_level_idc_from_vk (vk_max_level);
+    if (max_level >= 0)
+      *level = MIN (max_level, *level);
+  }
+
   gst_h264_encoder_set_max_num_references (encoder,
       vk_h264_caps->maxPPictureL0ReferenceCount,
       vk_h264_caps->maxL1ReferenceCount);
@@ -1085,18 +1085,18 @@ gst_vulkan_h264_encoder_new_parameters (GstH264Encoder * encoder,
   self->pps.sequence = &self->sps;
 
   {
+    GstVideoEncoder *vencoder = GST_VIDEO_ENCODER_CAST (self);
     GstCaps *caps;
     GstVideoInfo *info = &self->in_state->info;
     const char *profile, *level;
+    GstVideoCodecState *out_state;
 
     profile = gst_vulkan_h264_profile_name (self->params.sps.profile_idc);
-    level = gst_vulkan_h264_level_name (self->params.sps.level_idc);
-
-    if (!(profile && level))
+    if (!profile)
       return GST_FLOW_ERROR;
-
-    if (self->out_state)
-      gst_video_codec_state_unref (self->out_state);
+    level = gst_vulkan_h264_level_name (self->params.sps.level_idc);
+    if (!level)
+      return GST_FLOW_ERROR;
 
     caps = gst_caps_new_simple ("video/x-h264", "profile", G_TYPE_STRING,
         profile, "level", G_TYPE_STRING, level, "width", G_TYPE_INT,
@@ -1104,9 +1104,22 @@ gst_vulkan_h264_encoder_new_parameters (GstH264Encoder * encoder,
         GST_VIDEO_INFO_HEIGHT (info), "alignment", G_TYPE_STRING, "au",
         "stream-format", G_TYPE_STRING, "byte-stream", NULL);
 
-    self->out_state =
-        gst_video_encoder_set_output_state (GST_VIDEO_ENCODER_CAST (self),
-        caps, self->in_state);
+    out_state = gst_video_encoder_get_output_state (vencoder);
+    if (out_state) {
+      gboolean early_return = FALSE;
+
+      if (out_state->caps)
+        early_return = gst_caps_is_subset (out_state->caps, caps);
+      gst_video_codec_state_unref (out_state);
+      if (early_return) {
+        gst_caps_unref (caps);
+        return GST_FLOW_OK;
+      }
+    }
+
+    out_state =
+        gst_video_encoder_set_output_state (vencoder, caps, self->in_state);
+    gst_video_codec_state_unref (out_state);
   }
 
   return GST_FLOW_OK;
@@ -1485,7 +1498,7 @@ _setup_slice (GstVulkanH264Encoder * self, GstH264EncoderFrame * h264_frame,
     GstH264SliceHdr * slice_hdr)
 {
   GstVulkanH264EncoderFrame *vk_frame = _GET_FRAME (h264_frame);
-  GstH264SliceType slice_type = h264_frame->type.slice_type;
+  GstH264SliceType slice_type = (GstH264SliceType) h264_frame->gop.type;
 
   /* *INDENT-OFF* */
   vk_frame->slice_hdr = (StdVideoEncodeH264SliceHeader) {
@@ -1495,7 +1508,7 @@ _setup_slice (GstVulkanH264Encoder * self, GstH264EncoderFrame * h264_frame,
           slice_hdr->num_ref_idx_active_override_flag,
     },
     .first_mb_in_slice = slice_hdr->first_mb_in_slice, /* 0 */
-    .slice_type = gst_vulkan_h264_slice_type(h264_frame->type.slice_type),
+    .slice_type = gst_vulkan_h264_slice_type (h264_frame->gop.type),
     .cabac_init_idc = slice_hdr->cabac_init_idc,
     .disable_deblocking_filter_idc = slice_hdr->disable_deblocking_filter_idc,
     .slice_qp_delta = slice_hdr->slice_qp_delta,
@@ -1573,20 +1586,19 @@ _reset_rc_props (GstVulkanH264Encoder * self)
 }
 
 static StdVideoH264PictureType
-_gst_slice_type_2_vk_pic_type (GstH264GOPFrame * frame)
+_gst_slice_type_2_vk_pic_type (GstH26XGOP * frame)
 {
-  if ((frame->slice_type == GST_H264_I_SLICE) && frame->is_ref)
+  if (GST_H26X_GOP_IS_IDR (frame))
     return STD_VIDEO_H264_PICTURE_TYPE_IDR;
-  switch (frame->slice_type) {
-    case GST_H264_B_SLICE:
+  switch (frame->type) {
+    case GST_H26X_GOP_TYPE_B:
       return STD_VIDEO_H264_PICTURE_TYPE_B;
-    case GST_H264_P_SLICE:
+    case GST_H26X_GOP_TYPE_P:
       return STD_VIDEO_H264_PICTURE_TYPE_P;
-    case GST_H264_I_SLICE:
+    case GST_H26X_GOP_TYPE_I:
       return STD_VIDEO_H264_PICTURE_TYPE_I;
     default:
-      GST_WARNING ("Unsupported slice type '%d' for picture",
-          frame->slice_type);
+      GST_WARNING ("Unsupported slice type '%d' for picture", frame->type);
       return STD_VIDEO_H264_PICTURE_TYPE_INVALID;
   }
 }
@@ -1624,9 +1636,8 @@ gst_vulkan_h264_encoder_encode_frame (GstH264Encoder * base,
   /* *INDENT-OFF* */
   vk_frame->h264pic_info = (StdVideoEncodeH264PictureInfo) {
     .flags = {
-      .IdrPicFlag = ((h264_frame->type.slice_type == GST_H264_I_SLICE)
-          && h264_frame->type.is_ref),
-      .is_reference = h264_frame->type.is_ref,
+      .IdrPicFlag = GST_H26X_GOP_IS_IDR (&h264_frame->gop),
+      .is_reference = h264_frame->gop.is_ref,
       .no_output_of_prior_pics_flag =
           slice_hdr->dec_ref_pic_marking.no_output_of_prior_pics_flag,
       .long_term_reference_flag =
@@ -1637,7 +1648,7 @@ gst_vulkan_h264_encoder_encode_frame (GstH264Encoder * base,
     .seq_parameter_set_id = self->params.sps.seq_parameter_set_id,
     .pic_parameter_set_id = self->params.pps.pic_parameter_set_id,
     .idr_pic_id = slice_hdr->idr_pic_id,
-    .primary_pic_type = _gst_slice_type_2_vk_pic_type (&h264_frame->type),
+    .primary_pic_type = _gst_slice_type_2_vk_pic_type (&h264_frame->gop),
     .frame_num = h264_frame->gop_frame_num,
     .PicOrderCnt = h264_frame->poc,
     .temporal_id = 0,  /* no support for MVC extension */
@@ -1778,9 +1789,7 @@ gst_vulkan_h264_encoder_stop (GstVideoEncoder * encoder)
 
   if (self->in_state)
     gst_video_codec_state_unref (self->in_state);
-  if (self->out_state)
-    gst_video_codec_state_unref (self->out_state);
-  self->in_state = self->out_state = NULL;
+  self->in_state = NULL;
 
   gst_vulkan_encoder_stop (self->encoder);
 
@@ -2070,6 +2079,8 @@ gst_vulkan_h264_encoder_class_init (gpointer g_klass, gpointer class_data)
       | GST_PARAM_MUTABLE_PLAYING;
   gchar *long_name;
   const gchar *name;
+  GstPadTemplate *sink_pad_template, *src_pad_template;
+  GstCaps *sink_doc_caps, *src_doc_caps;
 
   name = "Vulkan H.264 encoder";
   if (cdata->description)
@@ -2086,11 +2097,25 @@ gst_vulkan_h264_encoder_class_init (gpointer g_klass, gpointer class_data)
 
   parent_class = g_type_class_peek_parent (klass);
 
-  gst_element_class_add_static_pad_template (element_class,
-      &gst_vulkan_h264_encoder_sink_template);
+  src_doc_caps = gst_caps_from_string ("video/x-h264, "
+      "profile = { (string) high, (string) main, (string) constrained-baseline }, "
+      "stream-format = (string) byte-stream, alignment = (string) au");
+  sink_doc_caps = gst_caps_from_string (GST_VIDEO_CAPS_MAKE_WITH_FEATURES
+      (GST_CAPS_FEATURE_MEMORY_VULKAN_IMAGE, "NV12"));
 
-  gst_element_class_add_static_pad_template (element_class,
-      &gst_vulkan_h264_encoder_src_template);
+  sink_pad_template =
+      gst_pad_template_new ("sink", GST_PAD_SINK, GST_PAD_ALWAYS, cdata->raw);
+  gst_element_class_add_pad_template (element_class, sink_pad_template);
+
+  src_pad_template =
+      gst_pad_template_new ("src", GST_PAD_SRC, GST_PAD_ALWAYS, cdata->codec);
+  gst_element_class_add_pad_template (element_class, src_pad_template);
+
+  gst_pad_template_set_documentation_caps (sink_pad_template, sink_doc_caps);
+  gst_caps_unref (sink_doc_caps);
+
+  gst_pad_template_set_documentation_caps (src_pad_template, src_doc_caps);
+  gst_caps_unref (src_doc_caps);
 
   gobject_class->set_property =
       GST_DEBUG_FUNCPTR (gst_vulkan_h264_encoder_set_property);
@@ -2266,6 +2291,8 @@ gst_vulkan_h264_encoder_class_init (gpointer g_klass, gpointer class_data)
 
   g_free (long_name);
   g_free (cdata->description);
+  gst_clear_caps (&cdata->codec);
+  gst_clear_caps (&cdata->raw);
   g_free (cdata);
 }
 
@@ -2284,12 +2311,27 @@ gst_vulkan_h264_encoder_register (GstPlugin * plugin, GstVulkanDevice * device,
   struct CData *cdata;
   gboolean ret;
   gchar *type_name, *feature_name;
+  GstCaps *codec = NULL, *raw = NULL;
+
+  g_return_val_if_fail (GST_IS_PLUGIN (plugin), FALSE);
+  g_return_val_if_fail (GST_IS_VULKAN_DEVICE (device), FALSE);
+
+  if (!gst_vulkan_physical_device_codec_caps (device->physical_device,
+          VK_VIDEO_CODEC_OPERATION_ENCODE_H264_BIT_KHR, &codec, &raw)) {
+    gst_plugin_add_status_warning (plugin,
+        "Unable to query H.264 encoder properties");
+    return FALSE;
+  }
 
   cdata = g_new (struct CData, 1);
   cdata->description = NULL;
   cdata->device_index = device->physical_device->device_index;
+  cdata->codec = codec;
+  cdata->raw = raw;
 
-  g_return_val_if_fail (GST_IS_PLUGIN (plugin), FALSE);
+  /* class data will be leaked if the element never gets instantiated */
+  GST_MINI_OBJECT_FLAG_SET (cdata->codec, GST_MINI_OBJECT_FLAG_MAY_BE_LEAKED);
+  GST_MINI_OBJECT_FLAG_SET (cdata->raw, GST_MINI_OBJECT_FLAG_MAY_BE_LEAKED);
 
   gst_vulkan_create_feature_name (device, "GstVulkanH264Encoder",
       "GstVulkanH264Device%dEncoder", &type_name, "vulkanh264enc",

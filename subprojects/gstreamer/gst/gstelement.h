@@ -970,34 +970,6 @@ G_STMT_START {                                                          \
  * @contexts: (element-type Gst.Context): list of contexts
  *
  * GStreamer element abstract base class.
- *
- * {{ PY.md }}
- *
- * ### Extra methods:
- *
- * #### Gst.Element.link_many
- *
- * ``` python
- * @staticmethod
- * def link_many(*args) -> None:
- * ```
- *
- * Links a list of elements together in order.
- *
- * ##### Parameters:
- *
- * - `*args` : A variable number of #GstElement objects to link in sequence.
- *
- * **Raises**: `Gst.LinkError` if any of the links fail.
- *
- * ##### Example:
- *
- * ``` python
- * # Link multiple elements together
- * Gst.Element.link_many(source, filter1, filter2, sink)
- * ```
- *
- * {{ END_LANG.md }}
  */
 struct _GstElement
 {
@@ -1092,6 +1064,16 @@ struct _GstElementClass
 
   /* request/release pads */
   /* FIXME 2.0 harmonize naming with gst_element_request_pad */
+  /**
+   * GstElementClass::request_new_pad:
+   * @element: a #GstElement to find a request pad of.
+   * @templ: a #GstPadTemplate of which we want a pad of.
+   * @name: (transfer none) (nullable): the name of the request #GstPad
+   * to retrieve.
+   * @caps: (transfer none) (nullable): the caps of the pad we want to request.
+   *
+   * Returns: (transfer none) (nullable): the requested #GstPad.
+   */
   GstPad*               (*request_new_pad)      (GstElement *element, GstPadTemplate *templ,
                                                  const gchar* name, const GstCaps *caps);
 

@@ -52,45 +52,6 @@
  *   g_return_if_fail (src != NULL);
  *   ...
  * ]|
- *
- * {{ PY.md }}
- *
- * ## Helper methods:
- *
- * ### Gst.ElementFactory.get_longname
- *
- * ``` python
- * def get_longname(self) -> str:
- * ```
- *
- * **Convenience method**: Gets the long name metadata for the factory.
- * This is equivalent to calling `get_metadata("long-name")`.
- *
- * **Returns**: The long name of the element factory.
- *
- * ### Gst.ElementFactory.get_description
- *
- * ``` python
- * def get_description(self) -> str:
- * ```
- *
- * **Convenience method**: Gets the description metadata for the factory.
- * This is equivalent to calling `get_metadata("description")`.
- *
- * **Returns**: The description of the element factory.
- *
- * ### Gst.ElementFactory.get_klass
- *
- * ``` python
- * def get_klass(self) -> str:
- * ```
- *
- * **Convenience method**: Gets the klass metadata for the factory.
- * This is equivalent to calling `get_metadata("klass")`.
- *
- * **Returns**: The klass of the element factory.
- *
- * {{ END_LANG.md }}
  */
 
 #include "gst_private.h"
@@ -538,6 +499,8 @@ gst_element_factory_create_with_properties (GstElementFactory * factory,
     g_return_val_if_fail (element != NULL, NULL);
   }
 
+  GST_DEBUG ("created element \"%s\"", GST_OBJECT_NAME (factory));
+
   /* fill in the pointer to the factory in the element class. The
    * class will not be unreffed currently.
    * Be thread safe as there might be 2 threads creating the first instance of
@@ -558,9 +521,6 @@ gst_element_factory_create_with_properties (GstElementFactory * factory,
     g_critical ("The created element should be floating, "
         "this is probably caused by faulty bindings");
   }
-
-
-  GST_DEBUG ("created element \"%s\"", GST_OBJECT_NAME (factory));
 
   return element;
 

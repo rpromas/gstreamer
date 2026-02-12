@@ -83,6 +83,7 @@ enum
   PROP_PEM,
   PROP_PEER_PEM,
   PROP_CONNECTION_STATE,
+  PROP_DTLS_VERSION,
   NUM_PROPERTIES
 };
 
@@ -153,6 +154,20 @@ gst_dtls_srtp_dec_class_init (GstDtlsSrtpDecClass * klass)
       GST_DTLS_TYPE_CONNECTION_STATE,
       GST_DTLS_CONNECTION_STATE_NEW, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
+  /**
+   * GstDtlsSrtpDec:dtls-version:
+   *
+   * The negotiated DTLS protocol version, represented as 2 bytes. Each
+   * component of the version is translated to a byte using `hex(255 -
+   * component)`. For instance if the version is 1.3, the resulting value will
+   * be `0xFEFC`.
+   *
+   * Since: 1.30
+   */
+  properties[PROP_DTLS_VERSION] =
+      g_param_spec_uint ("dtls-version", "DTLS version", "Negotiated version",
+      0, G_MAXUINT16, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
   g_object_class_install_properties (gobject_class, NUM_PROPERTIES, properties);
 
   gst_element_class_add_static_pad_template (element_class, &sink_template);
@@ -164,7 +179,7 @@ gst_dtls_srtp_dec_class_init (GstDtlsSrtpDecClass * klass)
       "DTLS-SRTP Decoder",
       "Decoder/Network/DTLS/SRTP",
       "Decodes SRTP packets with a key received from DTLS",
-      "Patrik Oldsberg patrik.oldsberg@ericsson.com");
+      "Patrik Oldsberg <patrik.oldsberg@ericsson.com>");
 }
 
 static void
@@ -182,7 +197,7 @@ gst_dtls_srtp_dec_init (GstDtlsSrtpDec * self)
   GstElementClass *klass = GST_ELEMENT_GET_CLASS (GST_ELEMENT (self));
   GstPadTemplate *templ;
   GstPad *target_pad, *ghost_pad;
-  gboolean ret;
+  gboolean ret GST_UNUSED_CHECKS;
 
 /*
                                  +-----------+
@@ -310,6 +325,14 @@ gst_dtls_srtp_dec_get_property (GObject * object,
             "tried to get connection-state after disabling DTLS");
       }
       break;
+    case PROP_DTLS_VERSION:
+      if (self->bin.dtls_element) {
+        g_object_get_property (G_OBJECT (self->bin.dtls_element), "version",
+            value);
+      } else {
+        GST_WARNING_OBJECT (self, "tried to get version after disabling DTLS");
+      }
+      break;
     default:
       G_OBJECT_WARN_INVALID_PROPERTY_ID (self, prop_id, pspec);
   }
@@ -322,7 +345,7 @@ gst_dtls_srtp_dec_request_new_pad (GstElement * element,
   GstDtlsSrtpDec *self = GST_DTLS_SRTP_DEC (element);
   GstElementClass *klass = GST_ELEMENT_GET_CLASS (element);
   GstPad *ghost_pad = NULL;
-  gboolean ret;
+  gboolean ret GST_UNUSED_CHECKS;
 
   GST_DEBUG_OBJECT (element, "pad requested");
 
@@ -470,7 +493,7 @@ gst_dtls_srtp_dec_remove_dtls_element (GstDtlsSrtpBin * bin)
 {
   GstDtlsSrtpDec *self = GST_DTLS_SRTP_DEC (bin);
   GstPad *demux_pad;
-  gulong id;
+  gulong id GST_UNUSED_CHECKS;
 
   if (!bin->dtls_element) {
     return;

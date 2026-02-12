@@ -49,21 +49,11 @@
  * Field values can be retrieved with gst_structure_get_value() or the more
  * convenient gst_structure_get_*() functions.
  *
- * {{ C+JS_FALLBACK.md }}
- *
  * Fields can be removed with gst_structure_remove_field() or
  * gst_structure_remove_fields().
  *
  * Strings in structures must be ASCII or UTF-8 encoded. Other encodings are not
  * allowed. Strings may be %NULL however.
- *
- * {{ END_LANG.md }}
- *
- * {{ PY.md }}
- *
- * Fields can be removed with `del struct[key]` or `struct.remove_field(key)`.
- *
- * {{ END_LANG.md }}
  *
  * ## The serialization format
  *
@@ -100,15 +90,15 @@
  *
  * Some types have special delimiters:
  *
- * - #GstValueArray are inside "less and greater than" (`<` and
+ * - [GstValueArray](GST_TYPE_ARRAY) are inside "less and greater than" (`<` and
  *   `>`). For example `a-structure, array=<1, 2, 3>
  * - Ranges are inside brackets (`[` and `]`). For example `a-structure,
  *   range=[1, 6, 2]` 1 being the min value, 6 the maximum and 2 the step. To
- *   specify a #GstInt64Range you need to explicitly specify it like:
+ *   specify a #GST_TYPE_INT64_RANGE you need to explicitly specify it like:
  *   `a-structure, a-int64-range=(gint64) [1, 5]`
- * - #GstValueList are inside curly brackets (`{` and `}`).
+ * - [GstValueList](GST_TYPE_LIST) are inside curly brackets (`{` and `}`).
  *   For example `a-structure, list={1, 2, 3}`
- * - #GStrv are inside "less and greater than" (`<` and
+ * - [GStrv](G_TYPE_STRV) are inside "less and greater than" (`<` and
  *   `>`) and each string is double-quoted.
  *   For example `a-structure, strv=(GStrv)<"foo", "bar">`. Since 1.26.0.
  *
@@ -1032,12 +1022,6 @@ gst_structure_id_set_value (GstStructure * structure,
  * Sets the field with the given name @field to @value.  If the field
  * does not exist, it is created.  If the field exists, the previous
  * value is replaced and freed.
- *
- * {{ PY.md }}
- *
- * Raises `Gst.NotWritableStructure`
- *
- * {{ END_LANG.md }}
  */
 void
 gst_structure_set_value (GstStructure * structure,
@@ -3080,9 +3064,14 @@ priv_gst_structure_append_to_gstring (const GstStructure * structure,
     g_string_append_len (s, ", ", 2);
     /* FIXME: do we need to escape fieldnames? */
     g_string_append (s, gst_id_str_as_str (&field->name));
-    g_string_append_len (s, "=(", 2);
-    g_string_append (s, _priv_gst_value_gtype_to_abbr (type));
-    g_string_append_c (s, ')');
+
+    if (t != NULL && t[0] == '(') {
+      g_string_append_len (s, "=", 1);
+    } else {
+      g_string_append_len (s, "=(", 2);
+      g_string_append (s, _priv_gst_value_gtype_to_abbr (type));
+      g_string_append_c (s, ')');
+    }
     if (nested_structs_brackets
         && G_VALUE_TYPE (&field->value) == GST_TYPE_STRUCTURE) {
       const GstStructure *substruct = gst_value_get_structure (&field->value);
@@ -3115,8 +3104,14 @@ priv_gst_structure_append_to_gstring (const GstStructure * structure,
         g_string_append_printf (s, "%p", ptr);
     } else if (G_TYPE_CHECK_VALUE_TYPE (&field->value, G_TYPE_ARRAY)) {
       GArray *arr = g_value_get_boxed (&field->value);
-      g_string_append_printf (s, "[%d %s]", arr->len,
-          arr->len == 1 ? "entry" : "entries");
+
+      if (strict)
+        return FALSE;
+      if (arr == NULL)
+        g_string_append (s, "NULL");
+      else
+        g_string_append_printf (s, "[%d %s]", arr->len,
+            arr->len == 1 ? "entry" : "entries");
     } else {
       if (!G_TYPE_CHECK_VALUE_TYPE (&field->value, G_TYPE_STRING))
         GST_WARNING ("No value transform to serialize field '%s' of type '%s'",
@@ -3299,7 +3294,7 @@ gst_structure_parse_field (gchar * str,
   while (g_ascii_isspace (*s) || (s[0] == '\\' && g_ascii_isspace (s[1])))
     s++;
   name = s;
-  if (G_UNLIKELY (!_priv_gst_value_parse_simple_string (s, &name_end))) {
+  if (G_UNLIKELY (!_priv_gst_value_parse_simple_string (s, &name_end, '\0'))) {
     GST_WARNING ("failed to parse simple string, str=%s", str);
     return FALSE;
   }
@@ -4556,7 +4551,7 @@ _gst_structure_get_any_list (GstStructure * structure, GType type,
  * @array: (out): a pointer to a #GValueArray
  *
  * This is useful in language bindings where unknown #GValue types are not
- * supported. This function will convert the #GstValueArray into a newly
+ * supported. This function will convert the %GST_TYPE_ARRAY into a newly
  * allocated #GValueArray and return it through @array. Be aware that this is
  * slower then getting the #GValue directly.
  *
@@ -4634,9 +4629,9 @@ _gst_structure_set_any_list (GstStructure * structure, GType type,
  * @array: a pointer to a #GValueArray
  *
  * This is useful in language bindings where unknown GValue types are not
- * supported. This function will convert a @array to #GstValueArray and set
+ * supported. This function will convert a @array to %GST_TYPE_ARRAY and set
  * the field specified by @fieldname.  Be aware that this is slower then using
- * #GstValueArray in a #GValue directly.
+ * %GST_TYPE_ARRAY in a #GValue directly.
  *
  * Since: 1.12
  */
@@ -4654,7 +4649,7 @@ gst_structure_set_array (GstStructure * structure, const gchar * fieldname,
  * @array: a pointer to a #GValueArray
  *
  * This is useful in language bindings where unknown GValue types are not
- * supported. This function will convert a @array to #GstValueList and set
+ * supported. This function will convert a @array to %GST_TYPE_LIST and set
  * the field specified by @fieldname. Be aware that this is slower then using
  * %GST_TYPE_LIST in a #GValue directly.
  *

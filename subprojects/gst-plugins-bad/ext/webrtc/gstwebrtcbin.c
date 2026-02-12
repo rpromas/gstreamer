@@ -1224,6 +1224,13 @@ _execute_op (GstWebRTCBinTask * op)
 
   PC_UNLOCK (op->webrtc);
 
+  if (op->deferred) {
+    GST_DEBUG_OBJECT (op->webrtc,
+        "Task successfully submitted, promise result is expected to be notified asynchronously");
+    gst_clear_structure (&s);
+    goto out;
+  }
+
   if (op->promise)
     gst_promise_reply (op->promise, s);
   else if (s)
@@ -1249,9 +1256,10 @@ _free_op (GstWebRTCBinTask * op)
  * be replied to in the case that @webrtc becomes closed between the idle
  * source addition and the the execution of the idle source.
  */
-gboolean
-gst_webrtc_bin_enqueue_task (GstWebRTCBin * webrtc, GstWebRTCBinFunc func,
-    gpointer data, GDestroyNotify notify, GstPromise * promise)
+static gboolean
+gst_webrtc_bin_enqueue_task_full (GstWebRTCBin * webrtc,
+    GstWebRTCBinFunc func, gpointer data,
+    GDestroyNotify notify, GstPromise * promise, gboolean deferred)
 {
   GstWebRTCBinTask *op;
   GMainContext *ctx;
@@ -1272,6 +1280,7 @@ gst_webrtc_bin_enqueue_task (GstWebRTCBin * webrtc, GstWebRTCBinFunc func,
 
   op = g_new0 (GstWebRTCBinTask, 1);
   op->webrtc = webrtc;
+  op->deferred = deferred;
   op->op = func;
   op->data = data;
   op->notify = notify;
@@ -1287,6 +1296,14 @@ gst_webrtc_bin_enqueue_task (GstWebRTCBin * webrtc, GstWebRTCBinFunc func,
   g_main_context_unref (ctx);
 
   return TRUE;
+}
+
+gboolean
+gst_webrtc_bin_enqueue_task (GstWebRTCBin * pc, GstWebRTCBinFunc func,
+    gpointer data, GDestroyNotify notify, GstPromise * promise)
+{
+  return gst_webrtc_bin_enqueue_task_full (pc, func, data, notify, promise,
+      FALSE);
 }
 
 void
@@ -1651,7 +1668,15 @@ _update_ice_gathering_state_task (GstWebRTCBin * webrtc, gpointer data)
   if (new_state == GST_WEBRTC_ICE_GATHERING_STATE_COMPLETE) {
     ICE_LOCK (webrtc);
     if (webrtc->priv->pending_local_ice_candidates->len != 0) {
-      /* ICE candidates queued for emissiong -> we're gathering, not complete */
+      /* ICE candidates queued for emission -> we're gathering, not complete */
+
+      const gchar *new_s =
+          _enum_value_to_string (GST_TYPE_WEBRTC_ICE_GATHERING_STATE,
+          GST_WEBRTC_ICE_GATHERING_STATE_GATHERING);
+      GST_INFO_OBJECT (webrtc,
+          "Deferring ICE gathering state change to %s(%u) due to pending candidates",
+          new_s, GST_WEBRTC_ICE_GATHERING_STATE_GATHERING);
+
       new_state = GST_WEBRTC_ICE_GATHERING_STATE_GATHERING;
     }
     ICE_UNLOCK (webrtc);
@@ -2839,6 +2864,7 @@ _get_or_create_data_channel_transports (GstWebRTCBin * webrtc, guint session_id)
 
     if (!(sctp_transport = webrtc->priv->sctp_transport)) {
       sctp_transport = webrtc_sctp_transport_new ();
+      gst_object_ref_sink (sctp_transport);
       sctp_transport->transport =
           g_object_ref (webrtc->priv->data_channel_transport->transport);
       sctp_transport->webrtcbin = webrtc;
@@ -4182,7 +4208,7 @@ _create_offer_task (GstWebRTCBin * webrtc, const GstStructure * options,
 
         /* Verify that we didn't ignore any locked m-line transceivers */
         for (i = 0; i < webrtc->priv->transceivers->len; i++) {
-          WebRTCTransceiver *wtrans;
+          WebRTCTransceiver *wtrans GST_UNUSED_ASSERT;
 
           trans = g_ptr_array_index (webrtc->priv->transceivers, i);
           wtrans = WEBRTC_TRANSCEIVER (trans);
@@ -4689,12 +4715,23 @@ _create_answer_task (GstWebRTCBin * webrtc, const GstStructure * options,
       guint answer_caps_size = gst_caps_get_size (answer_caps);
       for (guint l = 0; l < answer_caps_size; l++) {
         const GstStructure *s = gst_caps_get_structure (answer_caps, l);
-        const gchar *enc_name = gst_structure_get_string (s, "encoding-name");
-        gchar *tmp = g_ascii_strdown (enc_name, -1);
+        const gchar *enc_name = NULL;
+        gchar *tmp = NULL;
         gint target_pt = -1;
         gint original_target_pt = -1;
         guint target_ssrc = 0;
 
+        enc_name = gst_structure_get_string (s, "encoding-name");
+
+        /* The SDP might have been munged and we have no guarantee that
+         * gst_sdp_media_get_caps_from_media() adds an encoding-name field to all caps. */
+        if (!enc_name) {
+          GST_WARNING_OBJECT (webrtc,
+              "encoding-name missing in %" GST_PTR_FORMAT, s);
+          continue;
+        }
+
+        tmp = g_ascii_strdown (enc_name, -1);
         if (g_strv_contains (disallowed_payloads, tmp)) {
           g_free (tmp);
           continue;
@@ -5454,6 +5491,7 @@ _add_ice_candidate (GstWebRTCBin * webrtc, IceCandidateItem * item,
       ICE_LOCK (webrtc);
       g_array_append_val (webrtc->priv->pending_remote_ice_candidates, new);
       ICE_UNLOCK (webrtc);
+      gst_promise_reply (item->promise, NULL);
     }
     return;
   }
@@ -7140,6 +7178,9 @@ _add_ice_candidate_task (GstWebRTCBin * webrtc, IceCandidateItem * item)
     ICE_LOCK (webrtc);
     g_array_append_val (webrtc->priv->pending_remote_ice_candidates, new);
     ICE_UNLOCK (webrtc);
+    if (item->promise) {
+      gst_promise_reply (item->promise, NULL);
+    }
   } else {
     _add_ice_candidate (webrtc, item, FALSE);
   }
@@ -7159,6 +7200,7 @@ gst_webrtc_bin_add_ice_candidate (GstWebRTCBin * webrtc, guint mline,
     const gchar * attr, GstPromise * promise)
 {
   IceCandidateItem *item;
+  gboolean defer_result = promise != NULL;
 
   item = g_new0 (IceCandidateItem, 1);
   item->mlineindex = mline;
@@ -7169,9 +7211,10 @@ gst_webrtc_bin_add_ice_candidate (GstWebRTCBin * webrtc, guint mline,
     else if (!g_ascii_strncasecmp (attr, "candidate:", 10))
       item->candidate = g_strdup_printf ("a=%s", attr);
   }
-  if (!gst_webrtc_bin_enqueue_task (webrtc,
+
+  if (!gst_webrtc_bin_enqueue_task_full (webrtc,
           (GstWebRTCBinFunc) _add_ice_candidate_task, item,
-          (GDestroyNotify) _free_ice_candidate_item, promise)) {
+          (GDestroyNotify) _free_ice_candidate_item, promise, defer_result)) {
     GError *error =
         g_error_new (GST_WEBRTC_ERROR, GST_WEBRTC_ERROR_INVALID_STATE,
         "Could not add ICE candidate. webrtcbin is closed");
@@ -7185,7 +7228,7 @@ gst_webrtc_bin_add_ice_candidate (GstWebRTCBin * webrtc, guint mline,
 }
 
 static GstStructure *
-_on_local_ice_candidate_task (GstWebRTCBin * webrtc)
+_on_local_ice_candidate_task (GstWebRTCBin * webrtc, gpointer data)
 {
   gsize i;
   GArray *items;
@@ -7254,7 +7297,9 @@ _on_local_ice_candidate_task (GstWebRTCBin * webrtc)
   }
   g_array_free (items, TRUE);
 
-  return NULL;
+  /* Clearing all pending ice candidates may have allowed the gathering
+   * state to transition to complete - so check it before exiting */
+  return _update_ice_gathering_state_task (webrtc, data);
 }
 
 static void
@@ -7602,7 +7647,7 @@ on_rtpbin_pad_added (GstElement * rtpbin, GstPad * new_pad,
     guint32 session_id = 0, ssrc = 0, pt = 0;
     SsrcMapItem *mid_entry;
     GstWebRTCRTPTransceiver *rtp_trans = NULL;
-    WebRTCTransceiver *trans;
+    WebRTCTransceiver *trans GST_UNUSED_ASSERT;
     TransportStream *stream;
     GstWebRTCBinPad *pad;
     guint media_idx;
@@ -8780,7 +8825,9 @@ gst_webrtc_bin_close (GstWebRTCBin * webrtc, GstPromise * promise)
     GstWebRTCDTLSTransport *transport;
 
     transport = webrtc_transceiver_get_dtls_transport (rtp_trans);
-    transport->state = GST_WEBRTC_DTLS_TRANSPORT_STATE_CLOSED;
+    if (transport) {
+      transport->state = GST_WEBRTC_DTLS_TRANSPORT_STATE_CLOSED;
+    }
   }
 
   GST_OBJECT_UNLOCK (webrtc);
@@ -8796,6 +8843,7 @@ gst_webrtc_bin_close (GstWebRTCBin * webrtc, GstPromise * promise)
       gst_promise_new_with_change_func (on_ice_closed, d,
       (GDestroyNotify) close_data_unref);
   gst_webrtc_ice_close (webrtc->priv->ice, close_promise);
+  gst_promise_unref (close_promise);
 }
 
 static void
@@ -8971,6 +9019,14 @@ gst_webrtc_bin_dispose (GObject * object)
     g_array_free (webrtc->priv->ice_stream_map, TRUE);
   webrtc->priv->ice_stream_map = NULL;
 
+  if (webrtc->priv->sctp_transport) {
+    gst_element_set_locked_state (webrtc->priv->sctp_transport->sctpdec, FALSE);
+    gst_element_set_locked_state (webrtc->priv->sctp_transport->sctpenc, FALSE);
+    gst_element_set_state (webrtc->priv->sctp_transport->sctpdec,
+        GST_STATE_NULL);
+    gst_element_set_state (webrtc->priv->sctp_transport->sctpenc,
+        GST_STATE_NULL);
+  }
   g_clear_object (&webrtc->priv->sctp_transport);
 
   G_OBJECT_CLASS (parent_class)->dispose (object);
@@ -9434,6 +9490,15 @@ gst_webrtc_bin_class_init (GstWebRTCBinClass * klass)
    *  "local-id"            G_TYPE_STRING               identifier for the associated RTCInboundRTPSTreamStats
    *  "remote-timestamp"    G_TYPE_DOUBLE               remote timestamp the statistics were sent by the remote
    *
+   * RTCTransportStats supported fields (https://www.w3.org/TR/webrtc-stats/#transportstats-dict*)
+   *
+   * "selected-candidate-pair-id" G_TYPE_STRING         identifier for the associated RTCIceCandidatePairStats
+   * "dtls-role"            GST_TYPE_WEBRTC_DTLS_ROLE   "client" or "server" depending on the DTLS role. "unknown" before the DTLS negotiation starts. (Since: 1.28)
+   * "dtls-state"           GST_TYPE_WEBRTC_DTLS_TRANSPORT_STATE current value of the state attribute of the underlying RTCDtlsTransport (Since: 1.28)
+   * "tls-version"          G_TYPE_STRING               for components where DTLS is negotiated, the TLS version agreed. Only exists after DTLS negotiation is complete (Since: 1.30)
+   * "dtls-cipher"          G_TYPE_STRING               descriptive name of the cipher suite used for the DTLS transport (Since: 1.30)
+   * "srtp-cipher"          G_TYPE_STRING               descriptive name of the protection profile used for the SRTP transport (Since: 1.30)
+   *
    * RTCPeerConnectionStats supported fields (https://w3c.github.io/webrtc-stats/#pcstats-dict*) (Since: 1.24)
    *
    *  "data-channels-opened"  G_TYPE_UINT               number of unique data channels that have entered the 'open' state
@@ -9459,6 +9524,11 @@ gst_webrtc_bin_class_init (GstWebRTCBinClass * klass)
    *
    *  "local-candidate-id"  G_TYPE_STRING               unique identifier that is associated to the object that was inspected to produce the RTCIceCandidateStats for the local candidate associated with this candidate pair.
    *  "remote-candidate-id" G_TYPE_STRING               unique identifier that is associated to the object that was inspected to produce the RTCIceCandidateStats for the remote candidate associated with this candidate pair.
+   *
+   * RTCCertificateStats supported fields (https://www.w3.org/TR/webrtc-stats/#certificatestats-dict*) (Since: 1.30)
+   *  "fingerprint"           G_TYPE_STRING             The fingerprint of the certificate. Only use the fingerprint value as defined in Section 5 of [RFC4572].
+   *  "fingerprint-algorithm" G_TYPE_STRING             The hash function used to compute the certificate fingerprint.
+   *  "base64-certificate"    G_TYPE_STRING             The DER-encoded base-64 representation of the certificate.
    */
   gst_webrtc_bin_signals[GET_STATS_SIGNAL] =
       g_signal_new_class_handler ("get-stats",

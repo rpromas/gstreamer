@@ -70,6 +70,7 @@ enum
   PROP_0,
   PROP_AGENT,
   PROP_CONNECTION_STATE,
+  PROP_VERSION,
   NUM_PROPERTIES
 };
 
@@ -173,6 +174,19 @@ gst_dtls_connection_class_init (GstDtlsConnectionClass * klass)
       "Current connection state",
       GST_DTLS_TYPE_CONNECTION_STATE,
       GST_DTLS_CONNECTION_STATE_NEW, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
+
+  /**
+   * GstDtlsConnection:version:
+   *
+   * The negotiated DTLS protocol version, represented as 2 bytes. Each
+   * component of the version is translated to a byte using `hex(255 - component)`.
+   * For instance if the version is 1.3, the resulting value will be `0xFEFC`.
+   *
+   * Since: 1.30
+   */
+  properties[PROP_VERSION] =
+      g_param_spec_uint ("version", "DTLS version", "Negotiated version", 0,
+      G_MAXUINT16, 0, G_PARAM_READABLE | G_PARAM_STATIC_STRINGS);
 
   g_object_class_install_properties (gobject_class, NUM_PROPERTIES, properties);
 
@@ -314,6 +328,11 @@ gst_dtls_connection_get_property (GObject * object, guint prop_id,
     case PROP_CONNECTION_STATE:
       g_mutex_lock (&priv->mutex);
       g_value_set_enum (value, priv->connection_state);
+      g_mutex_unlock (&priv->mutex);
+      break;
+    case PROP_VERSION:
+      g_mutex_lock (&priv->mutex);
+      g_value_set_uint (value, SSL_version (priv->ssl));
       g_mutex_unlock (&priv->mutex);
       break;
     default:
@@ -1285,8 +1304,8 @@ bio_method_ctrl (BIO * bio, int cmd, long arg1, void *arg2)
       GST_LOG_OBJECT (self, "BIO: flushing");
       return 1;
     case BIO_CTRL_DGRAM_QUERY_MTU:
-      GST_DEBUG_OBJECT (self, "BIO: MTU query, returning 0...");
-      return 0;
+      GST_DEBUG_OBJECT (self, "BIO: MTU query, returning 1200...");
+      return 1200;
     case BIO_CTRL_DGRAM_MTU_EXCEEDED:
       GST_WARNING_OBJECT (self, "BIO: MTU exceeded");
       return 0;

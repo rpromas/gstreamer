@@ -459,7 +459,7 @@ unescape_string (const gchar * text)
 static const gchar *
 string_token (const gchar * string, const gchar * delimiter, gchar ** first)
 {
-  gchar *next = strstr (string, delimiter);
+  const gchar *next = strstr (string, delimiter);
   if (next) {
     *first = g_strndup (string, next - string);
   } else {
@@ -582,7 +582,7 @@ html_context_parse (HtmlContext * ctxt, gchar * text, gsize text_len)
     }
   }
 
-  ctxt->buf = g_string_assign (ctxt->buf, next);
+  g_assert_not_reached ();
 }
 
 static gchar *

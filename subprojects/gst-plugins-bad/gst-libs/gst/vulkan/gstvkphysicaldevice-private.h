@@ -25,8 +25,22 @@
 
 G_BEGIN_DECLS
 
-const VkPhysicalDeviceFeatures2 *
-                            gst_vulkan_physical_device_get_features         (GstVulkanPhysicalDevice * device);
+typedef struct _GstVulkanFormatProperties GstVulkanFormatProperties;
+
+/**
+ * GstVulkanFormatProperties: (skip):
+ * @linear_tiling_feat: linear tiling features
+ * @optimal_tiling_feat: optimal tiling features
+ * @buffer_feat: buffer features
+ *
+ * Common structure for Vulkan color format properties.
+ */
+struct _GstVulkanFormatProperties
+{
+  guint64 linear_tiling_feat;
+  guint64 optimal_tiling_feat;
+  guint64 buffer_feat;
+};
 
 gboolean                    gst_vulkan_physical_device_has_feature_sampler_ycbrc_conversion
                                                                             (GstVulkanPhysicalDevice * device);
@@ -34,7 +48,7 @@ gboolean                    gst_vulkan_physical_device_has_feature_sampler_ycbrc
 gboolean                    gst_vulkan_physical_device_has_feature_synchronization2
                                                                             (GstVulkanPhysicalDevice * device);
 
-gboolean                    gst_vulkan_physical_device_has_feature_timeline_sempahore
+gboolean                    gst_vulkan_physical_device_has_feature_timeline_semaphore
                                                                             (GstVulkanPhysicalDevice * device);
 
 gboolean                    gst_vulkan_physical_device_has_feature_video_maintenance1
@@ -48,6 +62,23 @@ gboolean                    gst_vulkan_physical_device_has_feature_video_decode_
 
 gboolean                    gst_vulkan_physical_device_has_feature_video_encode_av1
                                                                             (GstVulkanPhysicalDevice * device);
+
+void                        gst_vulkan_physical_device_get_format_properties
+                                                                            (GstVulkanPhysicalDevice * device,
+                                                                             guint vk_format,
+                                                                             GstVulkanFormatProperties * props);
+
+GArray *                    gst_vulkan_physical_device_get_video_formats    (GstVulkanPhysicalDevice * device,
+                                                                             guint64 image_usage,
+                                                                             gpointer pprofile,
+                                                                             GError ** error);
+
+gboolean                    gst_vulkan_physical_device_get_video_capabilities
+                                                                            (GstVulkanPhysicalDevice * device,
+                                                                             gpointer pprofile,
+                                                                             gpointer pcaps_out,
+                                                                             GError ** error);
+
 
 static inline void
 vk_link_struct (gpointer chain, gconstpointer in)

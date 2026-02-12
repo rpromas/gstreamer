@@ -435,7 +435,7 @@ gst_rtp_h263_pay_class_init (GstRtpH263PayClass * klass)
   gst_element_class_set_static_metadata (gstelement_class,
       "RTP H263 packet payloader", "Codec/Payloader/Network/RTP",
       "Payload-encodes H263 video in RTP packets (RFC 2190)",
-      "Neil Stratford <neils@vipadia.com>"
+      "Neil Stratford <neils@vipadia.com>, "
       "Dejan Sakelsak <dejan.sakelsak@marand.si>");
 
   GST_DEBUG_CATEGORY_INIT (rtph263pay_debug, "rtph263pay", 0,
@@ -1593,7 +1593,11 @@ gst_rtp_h263_pay_mode_B_fragment (GstRtpH263Pay * rtph263pay,
       //GST_DEBUG_OBJECT (rtph263pay, "Pushing GOBS %d to %d because payload size is %d", first,
       //    first == mb - 1, payload_len);
 
-      // FIXME: segfault if mb == 0 (first MB is larger than max_payload_size)
+      if (mb == 0) {
+        GST_ERROR_OBJECT (rtph263pay,
+            "first MB is larger than max_payload_size");
+        goto decode_error;
+      }
       GST_DEBUG_OBJECT (rtph263pay, "Push B mode fragment from mb %d to %d",
           first, mb - 1);
       if (gst_rtp_h263_pay_B_fragment_push (rtph263pay, context, gob, first,
@@ -1614,6 +1618,10 @@ gst_rtp_h263_pay_mode_B_fragment (GstRtpH263Pay * rtph263pay,
   /* Push rest */
   GST_DEBUG_OBJECT (rtph263pay, "Remainder first: %d, MB: %d", first, mb);
   if (payload_len != 0) {
+    if (mb == 0) {
+      GST_ERROR_OBJECT (rtph263pay, "first MB is larger than max_payload_size");
+      goto decode_error;
+    }
     GST_DEBUG_OBJECT (rtph263pay, "Push B mode fragment from mb %d to %d",
         first, mb - 1);
     if (gst_rtp_h263_pay_B_fragment_push (rtph263pay, context, gob, first,
