@@ -34,8 +34,8 @@ gst_core_audio_open_impl (GstCoreAudio * core_audio)
   if (core_audio->configure_session)
     gst_ios_audio_session_setup (core_audio->is_src);
 
-  return gst_core_audio_open_device (core_audio, kAudioUnitSubType_RemoteIO,
-      "RemoteIO");
+  return gst_core_audio_open_device (core_audio, kAudioUnitSubType_VoiceProcessingIO, "VoiceProcessingIO");
+
 }
 
 static gboolean
