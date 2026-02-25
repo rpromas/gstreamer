@@ -94,7 +94,7 @@ enum
 };
 
 #define DEFAULT_VOLUME 1.0
-#define DEFAULT_CONFIGURE_SESSION TRUE
+#define DEFAULT_CONFIGURE_SESSION FALSE
 
 static GstStaticPadTemplate sink_factory = GST_STATIC_PAD_TEMPLATE ("sink",
     GST_PAD_SINK,
